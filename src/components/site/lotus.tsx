@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { lotusPieces } from "@/components/site/lotus-geometry"
-import { GlassPane } from "@/components/site/visuals"
 import { cn } from "@/lib/utils"
 
 // The Carden lotus: each of its pieces stands for part of the game. The stage shows it taken apart,
@@ -20,10 +19,6 @@ const meanings = [
 export function Lotus() {
   return (
     <section id="lotus" className="relative scroll-mt-20 py-24">
-      <GlassPane color="gold" className="-bottom-90 left-[calc(50%-556px-424px)] hidden h-[760px] w-[440px] rotate-10 lg:block" />
-      <GlassPane color="pink" className="right-[calc(50%-556px-416px)] -bottom-75 hidden h-[700px] w-[440px] -rotate-8 lg:block" />
-      <GlassPane color="teal" className="top-[565px] left-[calc(50%-210px)] h-[300px] w-[420px] rotate-6 md:hidden" />
-      <GlassPane color="gold" className="-bottom-26 left-[calc(50%-210px)] h-[214px] w-[420px] -rotate-6 rounded-[44px] md:hidden" />
       <div className="mx-auto flex max-w-6xl flex-col gap-16 px-5">
         <div className="grid items-center gap-14 md:grid-cols-[0.95fr_1.05fr]">
           <div className="flex flex-col gap-9">

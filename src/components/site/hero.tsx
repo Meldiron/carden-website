@@ -8,11 +8,9 @@ export function Hero() {
       {/* (a phone, a picture or an empty corner) and, where there is room, a smaller one on the other side. Colours run pink, blue, */}
       {/* gold, teal seam by seam (the smaller pane two steps on). No pane sits behind text, buttons, the playable boards or the */}
       {/* photo picker at any width; md: values fit tablets. */}
-      <GlassPane color="pink" className="-top-30 left-[calc(50%+200px)] hidden h-[660px] w-[600px] rotate-12 md:block" />
-      <GlassPane color="blue" className="left-[calc(50%+70px)] hidden h-[880px] w-[680px] rotate-10 md:-bottom-15 md:block lg:-bottom-50" />
-      <GlassPane color="teal" className="bottom-[-50px] left-[calc(50%-556px-240px)] hidden h-[300px] w-[500px] -rotate-10 rounded-[44px] lg:block" />
-      <GlassPane color="pink" className="bottom-105 left-[calc(50%+50px)] h-[400px] w-[360px] rotate-12 md:hidden" />
-      <GlassPane color="blue" className="bottom-[-54px] left-[calc(50%-200px)] h-[560px] w-[440px] -rotate-8 md:hidden" />
+      <GlassPane color="pink" className="top-16 left-[calc(50%+250px)] h-[440px] w-[400px] rotate-12 hidden lg:block" />
+      <GlassPane color="blue" className="top-[calc(100%-200px)] left-[calc(50%+290px)] h-[400px] w-[360px] -rotate-8 hidden lg:block" />
+      <GlassPane color="blue" className="bottom-[-40px] left-[calc(50%-170px)] h-[420px] w-[340px] -rotate-8 md:hidden" />
 
       <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-5 pt-14 pb-20 md:grid-cols-[1.1fr_0.9fr] md:pt-20 md:pb-28">
         <div className="flex flex-col gap-7">

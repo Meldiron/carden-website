@@ -127,9 +127,7 @@ export function HowItPlays() {
   const { phases, played, play } = useBoardPlay(steps.length)
   return (
     <section id="how" className="relative scroll-mt-20 py-24">
-      <GlassPane color="gold" className="top-185 right-[calc(50%+20px)] hidden h-[560px] w-[720px] rotate-8 md:block" />
-      <GlassPane color="pink" className="top-180 left-[calc(50%+60px)] hidden h-[230px] w-[800px] -rotate-5 rounded-[44px] md:block" />
-      <GlassPane color="gold" className="-bottom-125 left-[calc(50%-260px)] h-[570px] w-[440px] rotate-8 md:hidden" />
+      <GlassPane color="gold" className="top-[calc(100%-70px)] right-[calc(50%+250px)] h-[420px] w-[360px] rotate-8 hidden lg:block" />
       <div className="relative mx-auto flex max-w-6xl flex-col gap-12 px-5">
         <Heading title="Two taps make a move" lead="Take your time. Every board saves itself and waits for you." />
         <ol className="grid gap-4 md:grid-cols-3">
@@ -185,8 +183,7 @@ export function Daily() {
   const [days, setDays] = useState(23)
   return (
     <section className="relative py-24">
-      <GlassPane color="teal" className="left-[calc(50%+50px)] hidden h-[900px] w-[640px] rotate-10 md:-bottom-195 md:block lg:-bottom-185" />
-      <GlassPane color="blue" className="right-[calc(50%+470px)] bottom-[-50px] hidden h-[520px] w-[560px] rotate-9 md:block" />
+      <GlassPane color="teal" className="top-[calc(100%-80px)] left-[calc(50%+250px)] h-[420px] w-[360px] rotate-10 hidden lg:block" />
       <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 md:grid-cols-2">
         <div className="relative mx-auto w-full max-w-[340px]">
           <Phone name="daily" alt="This month's daily pictures, with stars on the days already solved" />
@@ -286,9 +283,8 @@ export function Ways() {
   const { shape, under, pick, layerRef, sheen } = useShapeSwitch("triangles")
   return (
     <section id="ways" className="relative scroll-mt-20 py-24">
-      <GlassPane color="pink" className="top-[715px] left-[calc(50%-556px-450px)] hidden h-[760px] w-[420px] rotate-6 lg:block" />
-      <GlassPane color="gold" className="left-[calc(50%+80px)] hidden h-[560px] w-[600px] rotate-8 md:-bottom-20 md:block lg:bottom-[-170px]" />
-      <GlassPane color="pink" className="bottom-[-50px] left-[calc(50%-230px)] h-[460px] w-[460px] -rotate-8 md:hidden" />
+      <GlassPane color="pink" className="top-[calc(100%-70px)] right-[calc(50%+500px)] h-[420px] w-[360px] -rotate-8 hidden lg:block" />
+      <GlassPane color="pink" className="bottom-[-40px] left-[calc(50%-170px)] h-[360px] w-[340px] -rotate-8 md:hidden" />
       <Tabs value={shape} onValueChange={(v) => pick(v as Shape)} orientation="vertical" className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 md:grid-cols-[0.9fr_1.1fr]">
         <div className="flex flex-col gap-8">
           <Heading
@@ -348,8 +344,7 @@ export function Painting() {
   const board = usePuzzle(4, 4, paintingStart)
   return (
     <section className="relative py-24">
-      <GlassPane color="blue" className="bottom-[-30px] left-[calc(50%+40px)] hidden w-[800px] -rotate-6 rounded-[44px] md:block md:h-[160px] lg:h-[220px]" />
-      <GlassPane color="teal" className="right-[calc(50%+40px)] bottom-[-175px] hidden h-[220px] w-[760px] rotate-6 rounded-[44px] lg:block" />
+      <GlassPane color="blue" className="top-[calc(100%-80px)] left-[calc(50%+560px)] h-[420px] w-[360px] rotate-10 hidden lg:block" />
       <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 md:grid-cols-2">
         <div className="mx-auto w-full max-w-[380px]">
           <PuzzleBoard
@@ -402,9 +397,8 @@ export function Giant() {
   const board = usePuzzle(10, 10, giantStart)
   return (
     <section id="giant" className="relative scroll-mt-20 py-24">
-      <GlassPane color="gold" className="hidden w-[680px] rotate-8 md:-bottom-45 md:left-[calc(50%+220px)] md:block md:h-[310px] lg:bottom-[-250px] lg:left-[calc(50%+124px)] lg:h-[400px]" />
-      <GlassPane color="pink" className="right-[calc(50%+100px)] -bottom-15 hidden h-[220px] w-[760px] -rotate-5 rounded-[44px] lg:block" />
-      <GlassPane color="gold" className="bottom-[-50px] left-[calc(50%-220px)] h-[204px] w-[440px] -rotate-6 rounded-[44px] md:hidden" />
+      <GlassPane color="gold" className="top-[calc(100%-150px)] left-[calc(50%+330px)] h-[360px] w-[340px] -rotate-8 hidden lg:block" />
+      <GlassPane color="gold" className="bottom-[-40px] left-[calc(50%-170px)] h-[200px] w-[340px] -rotate-6 rounded-[44px] md:hidden" />
       <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 md:grid-cols-[0.9fr_1.1fr]">
         <div className="flex flex-col gap-8">
           <Heading title="Giant boards" lead="For a long, slow evening: 100 to 300 cards in one picture." />
@@ -489,7 +483,7 @@ export function Pictures() {
   }, [])
   return (
     <section ref={ref} id="pictures" className="relative scroll-mt-20 py-24">
-      <GlassPane color="teal" className="-bottom-199 left-[calc(50%+60px)] hidden h-[860px] w-[640px] -rotate-8 md:block" />
+      <GlassPane color="teal" className="top-[calc(100%-60px)] left-[calc(50%+300px)] h-[420px] w-[360px] rotate-8 hidden lg:block" />
       <div className="relative mx-auto flex max-w-6xl flex-col gap-6 px-5">
         <Heading
           title="Thousands of pictures"
@@ -572,8 +566,8 @@ function PhotoPicker() {
 export function OwnPhotos() {
   return (
     <section className="relative py-24">
-      <GlassPane color="pink" className="hidden h-[860px] w-[640px] rotate-10 md:-bottom-20 md:left-[calc(50%+240px)] md:block lg:bottom-[-230px] lg:left-[calc(50%+160px)]" />
-      <GlassPane color="pink" className="bottom-[-50px] left-[calc(50%-220px)] h-[600px] w-[440px] -rotate-9 md:hidden" />
+      <GlassPane color="pink" className="top-[calc(100%-150px)] left-[calc(50%+340px)] h-[340px] w-[340px] -rotate-10 hidden lg:block" />
+      <GlassPane color="pink" className="bottom-[-40px] left-[calc(50%-170px)] h-[380px] w-[340px] -rotate-9 md:hidden" />
       <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 md:grid-cols-2">
         <div className="flex flex-col gap-6 md:order-1">
           <Heading title="Puzzle your own photos" lead="Turn a favourite photo into a puzzle. It stays private, just for you." />
@@ -610,9 +604,6 @@ export function Together() {
   ]
   return (
     <section className="relative py-24">
-      <GlassPane color="blue" className="left-[calc(50%+60px)] hidden h-[760px] w-[620px] rotate-10 md:-bottom-115 md:block lg:-bottom-140" />
-      <GlassPane color="teal" className="right-[calc(50%+100px)] hidden h-[260px] w-[740px] rotate-6 rounded-[44px] md:bottom-[-34px] md:block lg:-bottom-25" />
-      <GlassPane color="blue" className="-bottom-13 left-[calc(50%-220px)] h-[360px] w-[440px] rotate-8 md:hidden" />
       <div className="relative mx-auto flex max-w-6xl flex-col gap-12 px-5">
         <Heading
           title="Something to come back to"
@@ -651,9 +642,8 @@ const promises = [
 export function Calm() {
   return (
     <section className="relative py-24">
-      <GlassPane color="teal" className="right-[calc(50%+40px)] bottom-[-789px] hidden h-[900px] w-[680px] -rotate-10 md:block" />
-      <GlassPane color="blue" className="-bottom-65 left-[calc(50%+60px)] hidden h-[360px] w-[800px] rotate-6 md:block" />
-      <GlassPane color="teal" className="-bottom-140 left-[calc(50%-200px)] h-[640px] w-[440px] rotate-9 md:hidden" />
+      <GlassPane color="blue" className="top-[calc(100%-70px)] right-[calc(50%+190px)] h-[420px] w-[360px] rotate-8 hidden lg:block" />
+      <GlassPane color="teal" className="-bottom-56 left-[calc(50%-170px)] h-[300px] w-[340px] rotate-9 md:hidden" />
       <div className="relative mx-auto max-w-6xl px-5">
         {/* The site's own glass: a soft cobalt-to-blush panel with lotus panes inside, the four promises on frosted tiles. */}
         <div className="relative isolate overflow-hidden rounded-[36px] bg-[linear-gradient(160deg,#e9eefb,#f7f8fd_55%,#fbeef4)] px-5 py-12 shadow-xl ring-1 ring-black/5 sm:px-12 sm:py-16 dark:bg-[linear-gradient(160deg,#141a38,#0f1224_55%,#1d1022)] dark:ring-white/10">

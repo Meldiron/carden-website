@@ -55,11 +55,13 @@ The site follows the app and its App Store screenshots:
   app icon (pink, gold, blue, teal). On white the panes multiply, so overlaps mix like stained glass; in dark
   they turn into deep jewel tones. Tokens and the `.glass-pane` style are in `src/styles.css`.
 - **Rhythm.** Section bands alternate white and dim one by one (by position, in `styles.css`), and the
-  panes run across the bands: sections do not clip their panes, the page does. Each boundary has one
-  pane crossing it, on alternating sides; next to text it stays in the side margin (anchored to the
-  content edge, `calc(50% - 556px - <width>)`), and only behind phones and boards does a pane reach
-  into a column. A dim band is the white ground seen through a filter sheet laid over the panes, so a
-  pane changes tint exactly where it crosses into it (layers: panes, the band's sheet, content).
+  panes run across the bands: sections do not clip their panes, the page does. Panes are accents, not
+  wallpaper: on desktop one pane (about 340 to 440 px) crosses a boundary where both neighbours have room,
+  starting in one section's bottom padding (`top-[calc(100%-Npx)]`) and ending behind a phone or in an
+  empty corner of the next; phones get a smaller set, tablets none. No pane sits behind text, buttons, the
+  playable boards, the photo picker or the lotus visual. A dim band is the white ground seen through a
+  filter sheet laid over the panes, so a pane changes tint exactly where it crosses into it (layers:
+  panes, the band's sheet, content).
 - **Write `backdrop-filter` without the `-webkit-` copy.** The build adds the prefix; writing both
   made it keep only the prefixed one, which Chrome ignores.
 - **Contrast.** Every line of text keeps 4.5:1 against what is really behind it, panes included (3:1

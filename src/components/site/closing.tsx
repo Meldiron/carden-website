@@ -53,7 +53,7 @@ const questions: { q: string; a: string; list?: string[]; note?: string }[] = [
 export function Faq() {
   return (
     <section id="questions" className="relative scroll-mt-20 py-24">
-      <GlassPane color="blue" className="right-[calc(50%+240px)] -bottom-140 hidden h-[860px] w-[600px] rotate-8 md:block" />
+      <GlassPane color="gold" className="top-[calc(100%-120px)] right-[calc(50%+300px)] h-[400px] w-[340px] rotate-8 hidden lg:block" />
       <div className="relative mx-auto grid max-w-6xl gap-12 px-5 md:grid-cols-[0.8fr_1.2fr]">
         <div className="flex flex-col gap-4">
           <h2 className="text-4xl leading-[1.08] font-bold tracking-tight sm:text-5xl">Questions</h2>
@@ -94,9 +94,8 @@ export function Faq() {
 export function FinalCta() {
   return (
     <section className="relative py-28">
-      <GlassPane color="gold" className="-bottom-65 left-[calc(50%+300px)] hidden h-[900px] w-[600px] -rotate-10 md:block" />
-      <GlassPane color="blue" className="top-[-50px] right-[calc(50%+60px)] h-[248px] w-[300px] -rotate-12 rounded-[44px] md:hidden" />
-      <GlassPane color="gold" className="top-[-50px] left-[calc(50%+60px)] h-[248px] w-[300px] rotate-12 rounded-[44px] md:hidden" />
+      <GlassPane color="teal" className="top-10 left-[calc(50%+300px)] h-[380px] w-[340px] -rotate-10 hidden lg:block" />
+      <GlassPane color="teal" className="top-[-40px] left-[calc(50%+60px)] h-[220px] w-[280px] rotate-12 rounded-[44px] md:hidden" />
       <div className="relative mx-auto flex max-w-3xl flex-col items-center gap-6 px-5 text-center">
         <img src="/carden-icon.svg" alt="" width={88} height={88} className="size-22 rounded-[22.37%] shadow-lg ring-1 ring-black/5" />
         <h2 className="text-5xl leading-[1.04] font-bold tracking-tight sm:text-6xl">One last game?</h2>

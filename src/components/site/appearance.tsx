@@ -20,9 +20,7 @@ export function Appearance() {
   )
   return (
     <section id="appearance" className="relative scroll-mt-20 py-24">
-      <GlassPane color="gold" className="right-[calc(50%+30px)] -bottom-10 hidden h-[640px] w-[600px] -rotate-9 md:block" />
-      <GlassPane color="pink" className="-bottom-10 left-[calc(50%+60px)] hidden h-[300px] w-[760px] -rotate-6 rounded-[44px] md:block" />
-      <GlassPane color="pink" className="top-75 right-[calc(50%+40px)] h-[320px] w-[300px] -rotate-8 md:hidden" />
+      <GlassPane color="pink" className="top-60 right-[calc(50%+40px)] h-[300px] w-[280px] -rotate-8 md:hidden" />
       <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 md:grid-cols-2">
         <div className="relative mx-auto h-[560px] w-full max-w-[460px] sm:h-[680px]">
           {screen("/screens/home.webp", "Carden's Home screen in the light theme", "top-0 left-0 w-[56%] max-w-[260px]")}
