@@ -1,133 +1,593 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
 
 @custom-variant dark (&:is(.dark *));
 
+/* Carden's design tokens (the app's lib/core/theme/tokens.dart), mapped onto shadcn's variables.
+   One accent: cobalt. Colour comes from the pictures and the glass panes, never from the chrome. */
 @theme inline {
-    --font-heading: var(--font-sans);
-    --font-sans: 'Geist Variable', sans-serif;
-    --color-sidebar-ring: var(--sidebar-ring);
-    --color-sidebar-border: var(--sidebar-border);
-    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-    --color-sidebar-accent: var(--sidebar-accent);
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-    --color-sidebar-primary: var(--sidebar-primary);
-    --color-sidebar-foreground: var(--sidebar-foreground);
-    --color-sidebar: var(--sidebar);
-    --color-chart-5: var(--chart-5);
-    --color-chart-4: var(--chart-4);
-    --color-chart-3: var(--chart-3);
-    --color-chart-2: var(--chart-2);
-    --color-chart-1: var(--chart-1);
-    --color-ring: var(--ring);
-    --color-input: var(--input);
-    --color-border: var(--border);
-    --color-destructive: var(--destructive);
-    --color-accent-foreground: var(--accent-foreground);
-    --color-accent: var(--accent);
-    --color-muted-foreground: var(--muted-foreground);
-    --color-muted: var(--muted);
-    --color-secondary-foreground: var(--secondary-foreground);
-    --color-secondary: var(--secondary);
-    --color-primary-foreground: var(--primary-foreground);
-    --color-primary: var(--primary);
-    --color-popover-foreground: var(--popover-foreground);
-    --color-popover: var(--popover);
-    --color-card-foreground: var(--card-foreground);
-    --color-card: var(--card);
-    --color-foreground: var(--foreground);
-    --color-background: var(--background);
-    --radius-sm: calc(var(--radius) * 0.6);
-    --radius-md: calc(var(--radius) * 0.8);
-    --radius-lg: var(--radius);
-    --radius-xl: calc(var(--radius) * 1.4);
-    --radius-2xl: calc(var(--radius) * 1.8);
-    --radius-3xl: calc(var(--radius) * 2.2);
-    --radius-4xl: calc(var(--radius) * 2.6);
+  /* The App Store slides set headlines in SF Pro Rounded; Apple devices have it as ui-rounded.
+     Elsewhere the system face stands in (no web font: the site loads nothing from other hosts). */
+  --font-heading: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --color-canvas: var(--canvas);
+  --color-brand: var(--brand);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+  --background: #ffffff;
+  --foreground: #111118;
+  --canvas: #f6f6f8;
+  --card: #ffffff;
+  --card-foreground: #111118;
+  --popover: #ffffff;
+  --popover-foreground: #111118;
+  --primary: #2f4fbf; /* white on it: 7.0:1 */
+  --primary-foreground: #ffffff;
+  --secondary: #e9eefb; /* the app's accent tint */
+  --secondary-foreground: #2f4fbf;
+  --muted: #f3f3f7;
+  --muted-foreground: #5f5f6e; /* 6.3:1 on white */
+  --accent: #e9eefb;
+  --accent-foreground: #2f4fbf;
+  --brand: #2f4fbf; /* the accent as text and icons */
+  --destructive: #dc2626;
+  --border: #e7e7ec;
+  --input: #e7e7ec;
+  --ring: #2f4fbf;
+  --radius: 0.75rem;
+
+  /* Lotus glass, as in the app icon: light end, deep end. */
+  --glass-pink: #ff8fb5, #ff4f8b;
+  --glass-gold: #ffd36a, #f0a30f;
+  --glass-blue: #8ccbff, #2f86f2;
+  --glass-teal: #7fe3c9, #16927e;
+  --glass-alpha: 0.62;
+  --glass-blend: multiply;
+  --glass-filter: none;
 }
 
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+  --background: #0b0b10;
+  --foreground: #f2f2f5;
+  --canvas: #111117;
+  --card: #17171c;
+  --card-foreground: #f2f2f5;
+  --popover: #1f1f26;
+  --popover-foreground: #f2f2f5;
+  --primary: #4065dd; /* the app's dark accent fill: white on it 5.1:1 */
+  --primary-foreground: #ffffff;
+  --secondary: #1c2440;
+  --secondary-foreground: #7c9aff;
+  --muted: #1f1f26;
+  --muted-foreground: #a6a6b4; /* 7.4:1 on the cards */
+  --accent: #1c2440;
+  --accent-foreground: #7c9aff;
+  --brand: #7c9aff;
+  --destructive: #f87171;
+  --border: #2a2a33;
+  --input: #2a2a33;
+  --ring: #7c9aff;
+
+  /* The same panes as deep jewel tones, like the store's dark slide. */
+  --glass-alpha: 0.9;
+  --glass-blend: normal;
+  --glass-filter: brightness(0.38) saturate(1.4);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    }
-  body {
-    @apply bg-background text-foreground;
-    }
-  button:not(:disabled), [role="button"]:not(:disabled) {
-    cursor: pointer;
-    }
+  }
   html {
     @apply font-sans;
+    -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  h1, h2, h3 {
+    @apply font-heading;
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  button:not(:disabled), [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
     }
+  }
+}
+
+/* ---- Glass panes: a see-through tinted body, a top sheen, a rim of light and a soft coloured
+   shadow; on white they multiply, so overlapping panes mix like stained glass. */
+@layer components {
+  .glass-pane {
+    position: absolute;
+    border-radius: 56px;
+    pointer-events: none;
+    opacity: var(--glass-alpha);
+    mix-blend-mode: var(--glass-blend);
+    filter: var(--glass-filter);
+    background: linear-gradient(150deg, var(--pane));
+    box-shadow:
+      inset 0 2px 0 rgb(255 255 255 / 0.6),
+      inset 0 0 0 1.5px rgb(255 255 255 / 0.35),
+      0 40px 80px -30px rgb(28 30 60 / 0.25);
+  }
+  .glass-pane::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.45), rgb(255 255 255 / 0) 38%);
+  }
+  .glass-pane::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(115deg, transparent 32%, rgb(255 255 255 / 0.26) 44%, transparent 56%);
+  }
+  .glass-pane[data-color="pink"] { --pane: var(--glass-pink); }
+  .glass-pane[data-color="gold"] { --pane: var(--glass-gold); }
+  .glass-pane[data-color="blue"] { --pane: var(--glass-blue); }
+  .glass-pane[data-color="teal"] { --pane: var(--glass-teal); }
+
+  /* Panes cross section boundaries as one piece of glass: sections do not clip them, the page
+     does (.page), and each section's own panes sit above every section's background band but below
+     every section's content, so a pane entering the next section still passes behind its text. */
+  .page {
+    overflow: clip;
+  }
+  /* Section bands alternate one by one, white then dim, down the whole page (and the footer
+     continues the rhythm), whatever order the sections are in. */
+  .page > section:nth-child(odd),
+  .page-footer {
+    background: var(--background);
+  }
+  .page > section:nth-child(even),
+  .page:has(> section:last-child:nth-child(odd)) ~ .page-footer {
+    background: var(--canvas);
+  }
+  .page > section > .glass-pane {
+    z-index: 1;
+  }
+  .page > section > :not(.glass-pane) {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Frosted glass for bars and cards that float over the panes. */
+  .frost {
+    background: color-mix(in oklab, var(--background) 72%, transparent);
+    backdrop-filter: blur(24px) saturate(1.35);
+    -webkit-backdrop-filter: blur(24px) saturate(1.35);
+  }
+
+  /* A phone or a picture lifted off the page. */
+  .lifted {
+    filter: drop-shadow(0 30px 40px rgb(28 30 60 / 0.22));
+  }
+  .dark .lifted {
+    filter: drop-shadow(0 30px 40px rgb(0 0 0 / 0.55));
+  }
+  .lifted-card {
+    box-shadow:
+      0 30px 60px -20px rgb(20 22 50 / 0.4),
+      0 0 0 5px rgb(255 255 255 / 0.95);
+  }
+  .dark .lifted-card {
+    box-shadow:
+      0 30px 60px -20px rgb(0 0 0 / 0.7),
+      0 0 0 4px rgb(255 255 255 / 0.25);
+  }
+
+  /* The endless row of pictures. */
+  .marquee {
+    mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  }
+  .marquee-track {
+    animation: marquee 80s linear infinite;
+  }
+  .marquee:hover .marquee-track {
+    animation-play-state: paused;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track {
+      animation: none;
+    }
+  }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* ---- Mini boards: the three moves of "Two taps make a move", drawn the way the game draws its
+   board (lib/features/game/board_widget.dart in the app). A card not yet in place has rounded
+   corners, a gutter, a light frame with a hairline outside it and a 16% dim; the selected card gets
+   an ink edge and lifts; joined cards close the gutter between them and share one accent edge; a
+   locked card fills its cell edge to edge at full brightness.
+   The boards take turns (HowItPlays): a board with data-run plays its move once over --t (tap, tap,
+   the swap, the result; a card that lands in its true place locks) and keeps the result through the
+   next board's turn; during the turn after that it fades quietly back to the shuffled board
+   (data-fading), so a reset never happens on the board being watched. */
+@layer components {
+  .mb-board {
+    --g: 3px;
+    --r: 9px;
+    --t: 3.4s;
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
+    --mb-frame: #ffffff;
+    --mb-edge: rgb(0 0 0 / 0.22);
+    --mb-ink: #111118;
+    position: relative;
+    aspect-ratio: 3 / 4;
+  }
+  .dark .mb-board {
+    --mb-frame: #a9aeb9;
+    --mb-edge: rgb(0 0 0 / 0.55);
+    --mb-ink: #ffffff;
+  }
+  .mb-stage {
+    position: absolute;
+    inset: 0;
+    transition: opacity 260ms ease;
+  }
+  .mb-board[data-fading] .mb-stage {
+    opacity: 0;
+  }
+  .mb-piece,
+  .mb-group {
+    position: absolute;
+    left: calc(var(--x) * 100% / 3);
+    top: calc(var(--y) * 100% / 3);
+    width: calc(100% / 3);
+    height: calc(100% / 3);
+  }
+  .mb-img {
+    position: absolute;
+    inset: 0;
+    background: var(--pic) calc(var(--hx) * 50%) calc(var(--hy) * 50%) / 300% 300% no-repeat;
+    clip-path: inset(var(--g) round var(--r));
+    filter: brightness(0.84);
+  }
+  .mb-frame,
+  .mb-ring,
+  .mb-group::before {
+    content: "";
+    position: absolute;
+    inset: var(--g);
+    border-radius: var(--r);
+    pointer-events: none;
+  }
+  .mb-frame {
+    box-shadow:
+      inset 0 0 0 2px var(--mb-frame),
+      0 0 0 1px var(--mb-edge),
+      0 2px 5px rgb(0 0 0 / 0.14);
+  }
+  .mb-piece[data-locked] .mb-img {
+    clip-path: inset(0px round 0px);
+    filter: none;
+  }
+  .mb-piece[data-locked] .mb-frame {
+    opacity: 0;
+  }
+  .mb-ring {
+    box-shadow: 0 0 0 2px var(--mb-ink), 0 8px 18px rgb(0 0 0 / 0.28);
+    opacity: 0;
+  }
+  .mb-piece[data-role="a"] {
+    z-index: 3;
+  }
+  .mb-piece[data-role="b"] {
+    z-index: 2;
+  }
+  .mb-group {
+    z-index: 4;
+    width: calc(200% / 3);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .mb-group::before {
+    box-shadow: inset 0 0 0 2px var(--brand);
+  }
+  /* A fingertip: where the player taps. */
+  .mb-tap {
+    position: absolute;
+    z-index: 5;
+    width: 34px;
+    height: 34px;
+    margin: -17px 0 0 -17px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.45);
+    box-shadow: 0 0 0 2px rgb(255 255 255 / 0.95), 0 6px 14px rgb(0 0 0 / 0.3);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .mb-stars {
+    position: absolute;
+    z-index: 5;
+    left: 50%;
+    bottom: 7%;
+    display: flex;
+    gap: 3px;
+    padding: 6px 11px;
+    border-radius: 999px;
+    color: #f0a30f;
+    background: rgb(255 255 255 / 0.78);
+    box-shadow: 0 8px 20px rgb(0 0 0 / 0.22);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    opacity: 0;
+    transform: translate(-50%, 8px) scale(0.9);
+  }
+  .dark .mb-stars {
+    background: rgb(23 23 28 / 0.72);
+  }
+
+  /* One run of the move. */
+  .mb-board[data-run] .mb-tap { animation: mb-tap var(--t) var(--ease) both; }
+  .mb-board[data-run] .mb-ring { animation: mb-ring var(--t) var(--ease) both; }
+  .mb-board[data-run] .mb-piece[data-role="a"] { animation: mb-move-a var(--t) var(--ease) both; }
+  .mb-board[data-run] .mb-piece[data-role="b"] { animation: mb-move-b var(--t) var(--ease) both; }
+  .mb-board[data-run] .mb-piece[data-lands] .mb-img { animation: mb-lock var(--t) var(--ease) both; }
+  .mb-board[data-run] .mb-piece[data-lands] .mb-frame,
+  .mb-board[data-run][data-scene="join"] .mb-piece:is([data-role="a"], [data-role="left"]) .mb-frame {
+    animation: mb-frame-out var(--t) var(--ease) both;
+  }
+  .mb-board[data-run][data-scene="join"] .mb-piece[data-role="left"] .mb-img { animation: mb-join-left var(--t) var(--ease) both; }
+  .mb-board[data-run][data-scene="join"] .mb-piece[data-role="a"] .mb-img { animation: mb-join-right var(--t) var(--ease) both; }
+  .mb-board[data-run] .mb-group { animation: mb-group var(--t) var(--ease) both; }
+  .mb-board[data-run] .mb-stars { animation: mb-stars var(--t) var(--ease) both; }
+
+  /* The step whose board is playing: one sheen of light passes over it, like a turn of glass. */
+  .step-sheen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / 0.42) 46%, rgb(255 255 255 / 0.1) 54%, transparent 66%);
+    transform: translateX(-130%);
+  }
+  .dark .step-sheen::after {
+    background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / 0.14) 46%, rgb(255 255 255 / 0.04) 54%, transparent 66%);
+  }
+  [data-active] > .step-sheen::after {
+    animation: step-sheen 1.2s cubic-bezier(0.3, 0.6, 0.3, 1) both;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-active] > .step-sheen::after {
+      animation: none;
+    }
+  }
+
+  /* Reduced motion: no turns, one still frame that tells the step (--freeze, a share of the run). */
+  @media (prefers-reduced-motion: reduce) {
+    .mb-board * {
+      animation-play-state: paused !important;
+      animation-delay: calc(var(--t) * var(--freeze) * -1) !important;
+    }
+  }
+}
+
+@keyframes step-sheen {
+  to { transform: translateX(130%); }
+}
+@keyframes mb-tap {
+  0%, 3% { opacity: 0; transform: scale(1.5); left: calc((var(--ax) + 0.5) * 100% / 3); top: calc((var(--ay) + 0.5) * 100% / 3); }
+  8% { opacity: 1; transform: scale(1); left: calc((var(--ax) + 0.5) * 100% / 3); top: calc((var(--ay) + 0.5) * 100% / 3); }
+  13% { opacity: 1; transform: scale(0.85); left: calc((var(--ax) + 0.5) * 100% / 3); top: calc((var(--ay) + 0.5) * 100% / 3); }
+  17% { opacity: 0; transform: scale(0.85); left: calc((var(--ax) + 0.5) * 100% / 3); top: calc((var(--ay) + 0.5) * 100% / 3); }
+  18% { opacity: 0; transform: scale(1.5); left: calc((var(--bx) + 0.5) * 100% / 3); top: calc((var(--by) + 0.5) * 100% / 3); }
+  22% { opacity: 1; transform: scale(1); left: calc((var(--bx) + 0.5) * 100% / 3); top: calc((var(--by) + 0.5) * 100% / 3); }
+  28% { opacity: 1; transform: scale(0.85); left: calc((var(--bx) + 0.5) * 100% / 3); top: calc((var(--by) + 0.5) * 100% / 3); }
+  32%, 100% { opacity: 0; transform: scale(0.85); left: calc((var(--bx) + 0.5) * 100% / 3); top: calc((var(--by) + 0.5) * 100% / 3); }
+}
+@keyframes mb-ring {
+  0%, 7% { opacity: 0; }
+  9%, 46% { opacity: 1; }
+  52%, 100% { opacity: 0; }
+}
+@keyframes mb-move-a {
+  0%, 7% { transform: translate(0, 0) scale(1); }
+  9%, 31% { transform: translate(0, 0) scale(1.05); }
+  50%, 100% { transform: translate(calc(var(--dx) * 100%), calc(var(--dy) * 100%)) scale(1); }
+}
+@keyframes mb-move-b {
+  0%, 31% { transform: translate(0, 0); }
+  50%, 100% { transform: translate(calc(var(--dx) * 100%), calc(var(--dy) * 100%)); }
+}
+@keyframes mb-lock {
+  0%, 51% { clip-path: inset(var(--g) round var(--r)); filter: brightness(0.84); }
+  60%, 100% { clip-path: inset(0px round 0px); filter: brightness(1); }
+}
+@keyframes mb-frame-out {
+  0%, 51% { opacity: 1; }
+  58%, 100% { opacity: 0; }
+}
+@keyframes mb-join-left {
+  0%, 51% { clip-path: inset(var(--g) var(--g) var(--g) var(--g) round var(--r) var(--r) var(--r) var(--r)); }
+  60%, 100% { clip-path: inset(var(--g) 0px var(--g) var(--g) round var(--r) 0px 0px var(--r)); }
+}
+@keyframes mb-join-right {
+  0%, 51% { clip-path: inset(var(--g) var(--g) var(--g) var(--g) round var(--r) var(--r) var(--r) var(--r)); }
+  60%, 100% { clip-path: inset(var(--g) var(--g) var(--g) 0px round 0px var(--r) var(--r) 0px); }
+}
+@keyframes mb-group {
+  0%, 52% { opacity: 0; }
+  60%, 100% { opacity: 1; }
+}
+@keyframes mb-stars {
+  0%, 60% { opacity: 0; transform: translate(-50%, 8px) scale(0.9); }
+  70%, 100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+
+
+/* ---- The lotus taken apart (logo section, Layers view): the ground and four layers of glass. Until
+   the stack comes into view it lies flat, the icon whole; then (data-open) it tilts into an
+   isometric stack and the layers lift apart. Reduced motion shows it opened, without the motion. */
+@layer components {
+  .lotus-layers {
+    --gap: 30px;
+    perspective: 1600px;
+  }
+  @media (min-width: 640px) {
+    .lotus-layers {
+      --gap: 46px;
+    }
+  }
+  .lotus-stack {
+    transform-style: preserve-3d;
+  }
+  .lotus-layers[data-open] .lotus-stack {
+    /* Pulled back by two gaps so the middle layer, not the ground, sits in the centre of the stage. */
+    transform: rotateX(56deg) rotateZ(-38deg) translateZ(calc(var(--gap) * -2));
+    animation: lotus-tilt 1100ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  .lotus-layers[data-open] .lotus-layer {
+    transform: translateZ(calc(var(--i) * var(--gap)));
+    animation: lotus-lift 1100ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(var(--i) * 50ms);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .lotus-layers[data-open] .lotus-stack,
+    .lotus-layers[data-open] .lotus-layer {
+      animation: none;
+    }
+  }
+}
+
+@keyframes lotus-tilt {
+  from { transform: rotateX(0deg) rotateZ(0deg) translateZ(0); }
+  to { transform: rotateX(56deg) rotateZ(-38deg) translateZ(calc(var(--gap) * -2)); }
+}
+@keyframes lotus-lift {
+  0%, 25% { transform: translateZ(0); }
+  100% { transform: translateZ(calc(var(--i) * var(--gap))); }
+}
+
+/* ---- The lotus Grid view: the outlines first, then the drawing comes in around them. Each mark has
+   its delay in --d; reduced motion shows the finished drawing. */
+@layer components {
+  .gv-fade {
+    animation: gv-fade 420ms ease-out var(--d, 0ms) both;
+  }
+  .gv-draw {
+    stroke-dasharray: 1;
+    animation: gv-draw 600ms cubic-bezier(0.3, 0.6, 0.3, 1) var(--d, 0ms) both;
+  }
+  .gv-grow {
+    transform-box: view-box;
+    animation: gv-grow 380ms cubic-bezier(0.3, 0.6, 0.3, 1) var(--d, 0ms) both;
+  }
+  .gv-pop {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: gv-pop 300ms cubic-bezier(0.3, 1.4, 0.5, 1) var(--d, 0ms) both;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .gv-fade,
+    .gv-draw,
+    .gv-grow,
+    .gv-pop {
+      animation: none;
+    }
+  }
+}
+
+@keyframes gv-fade {
+  from { opacity: 0; }
+}
+@keyframes gv-draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes gv-grow {
+  from { transform: scale(0); opacity: 0; }
+  20% { opacity: 1; }
+}
+@keyframes gv-pop {
+  from { transform: scale(0); }
+}
+
+/* ---- The lotus Icon view: one breeze from the left when the view opens. Each piece turns about its
+   own base (the drawing's coordinates: the bud stands on y 61, the petals meet near y 60, the leaf cup
+   on y 78); the bud moves most, the petals a beat later, the cups barely. */
+@layer components {
+  .lotus-piece {
+    transform-origin: 50% 61%;
+  }
+  .lotus-piece[data-piece="petal-left"] { transform-origin: 48% 60%; }
+  .lotus-piece[data-piece="petal-right"] { transform-origin: 52% 60%; }
+  .lotus-piece[data-piece="leaf"] { transform-origin: 50% 78%; }
+  .lotus-piece[data-piece="base"] { transform-origin: 50% 87%; }
+  .lotus-breeze .lotus-piece[data-piece="bud"] { animation: breeze-bud 2600ms ease-in-out 150ms both; }
+  .lotus-breeze .lotus-piece[data-piece="petal-left"] { animation: breeze-petal 2600ms ease-in-out 260ms both; }
+  .lotus-breeze .lotus-piece[data-piece="petal-right"] { animation: breeze-petal 2600ms ease-in-out 220ms both; }
+  .lotus-breeze .lotus-piece[data-piece="leaf"] { animation: breeze-cup 2600ms ease-in-out 320ms both; }
+  .lotus-breeze .lotus-piece[data-piece="base"] { animation: breeze-cup 2600ms ease-in-out 380ms both; --lean: 0.4; }
+  @media (prefers-reduced-motion: reduce) {
+    .lotus-breeze .lotus-piece {
+      animation: none !important;
+    }
+  }
+}
+
+@keyframes breeze-bud {
+  0% { transform: rotate(0deg); }
+  24% { transform: rotate(3.2deg); }
+  52% { transform: rotate(-1.6deg); }
+  76% { transform: rotate(0.7deg); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes breeze-petal {
+  0% { transform: rotate(0deg); }
+  26% { transform: rotate(2.2deg); }
+  55% { transform: rotate(-1.1deg); }
+  80% { transform: rotate(0.4deg); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes breeze-cup {
+  0% { transform: rotate(0deg); }
+  30% { transform: rotate(calc(0.8deg * var(--lean, 1))); }
+  60% { transform: rotate(calc(-0.4deg * var(--lean, 1))); }
+  100% { transform: rotate(0deg); }
 }
