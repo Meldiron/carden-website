@@ -4,11 +4,14 @@ import { GlassPane, Phone } from "@/components/site/visuals"
 export function Hero() {
   return (
     <section id="top" className="relative">
-      {/* Two large panes cross behind the phone; a third leans in from the left edge. */}
-      {/* On phones the panes sit behind the screen, below the text. */}
-      <GlassPane color="blue" className="top-[520px] -right-20 h-[460px] w-[340px] rotate-12 md:top-10 md:right-[4%] md:h-[620px] md:w-[520px]" />
-      <GlassPane color="pink" className="top-64 right-[18%] hidden h-[520px] w-[420px] -rotate-6 md:block" />
-      <GlassPane color="gold" className="-bottom-16 -left-36 h-[280px] w-[260px] rotate-[-14deg] md:-bottom-44 md:left-[calc(50%-556px-400px)] md:h-[420px] md:w-[400px]" />
+      {/* Glass panes, down the whole page: every seam between two sections is crossed by a large pane where both sides have room */}
+      {/* (a phone, a board or an empty corner) and, where there is room, a smaller one on the other side. Colours run pink, blue, */}
+      {/* gold, teal seam by seam (the smaller pane two steps on). No pane sits behind text at any width; md: values fit tablets. */}
+      <GlassPane color="pink" className="-top-30 left-[calc(50%+200px)] hidden h-[660px] w-[600px] rotate-12 md:block" />
+      <GlassPane color="blue" className="left-[calc(50%+70px)] hidden h-[880px] w-[680px] rotate-10 md:-bottom-15 md:block lg:-bottom-50" />
+      <GlassPane color="teal" className="bottom-[-50px] left-[calc(50%-556px-240px)] hidden h-[300px] w-[500px] -rotate-10 rounded-[44px] lg:block" />
+      <GlassPane color="pink" className="bottom-105 left-[calc(50%+50px)] h-[400px] w-[360px] rotate-12 md:hidden" />
+      <GlassPane color="blue" className="bottom-[-54px] left-[calc(50%-200px)] h-[560px] w-[440px] -rotate-8 md:hidden" />
 
       <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-5 pt-14 pb-20 md:grid-cols-[1.1fr_0.9fr] md:pt-20 md:pb-28">
         <div className="flex flex-col gap-7">

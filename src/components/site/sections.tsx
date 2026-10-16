@@ -130,7 +130,9 @@ export function HowItPlays() {
   const { ref, phases, active } = useTurns(steps.length)
   return (
     <section id="how" className="relative scroll-mt-20 py-24">
-      <GlassPane color="teal" className="right-[calc(50%-556px-360px)] -bottom-44 hidden h-[400px] w-[360px] rotate-12 md:block" />
+      <GlassPane color="gold" className="top-185 right-[calc(50%+20px)] hidden h-[880px] w-[720px] rotate-8 md:block" />
+      <GlassPane color="pink" className="top-180 left-[calc(50%+60px)] hidden h-[290px] w-[800px] -rotate-6 rounded-[44px] md:block" />
+      <GlassPane color="gold" className="bottom-[-630px] left-[calc(50%-260px)] h-[700px] w-[440px] rotate-8 md:hidden" />
       <div className="relative mx-auto flex max-w-6xl flex-col gap-12 px-5">
         <Heading title="Two taps make a move" lead="Take your time. Every board saves itself and waits for you." />
         <ol ref={ref} className="grid gap-4 md:grid-cols-3">
@@ -173,8 +175,8 @@ const dailyPerks = [
 export function Daily() {
   return (
     <section className="relative py-24">
-      <GlassPane color="blue" className="top-24 -left-32 h-[560px] w-[460px] -rotate-12" />
-      <GlassPane color="pink" className="-bottom-40 left-[calc(50%-556px-340px)] hidden h-[380px] w-[340px] rotate-6 md:block" />
+      <GlassPane color="teal" className="left-[calc(50%+50px)] hidden h-[900px] w-[640px] rotate-10 md:-bottom-180 md:block lg:bottom-[-670px]" />
+      <GlassPane color="blue" className="right-[calc(50%+40px)] bottom-[-50px] hidden h-[520px] w-[560px] -rotate-9 md:block" />
       <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 md:grid-cols-2">
         <div className="relative mx-auto w-full max-w-[340px]">
           <Phone name="daily" alt="This month's daily pictures, with stars on the days already solved" />
@@ -223,8 +225,9 @@ export function Ways() {
   const [shape, setShape] = useState<(typeof shapes)[number]["id"]>("triangles")
   return (
     <section id="ways" className="relative scroll-mt-20 py-24">
-      <GlassPane color="gold" className="-right-40 -bottom-48 hidden h-[640px] w-[480px] rotate-12 md:block" />
-      <GlassPane color="gold" className="-right-24 bottom-[14%] h-[340px] w-[280px] rotate-12 md:hidden" />
+      <GlassPane color="pink" className="right-[calc(50%+30px)] hidden h-[700px] w-[700px] rotate-10 md:bottom-[-670px] md:block lg:top-186" />
+      <GlassPane color="gold" className="left-[calc(50%+80px)] hidden h-[560px] w-[600px] rotate-8 md:-bottom-20 md:block lg:bottom-[-170px]" />
+      <GlassPane color="pink" className="bottom-[-330px] left-[calc(50%-230px)] h-[760px] w-[460px] -rotate-10 md:hidden" />
       <Tabs value={shape} onValueChange={(v) => setShape(v as typeof shape)} orientation="vertical" className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 md:grid-cols-[0.9fr_1.1fr]">
         <div className="flex flex-col gap-8">
           <Heading
@@ -277,8 +280,8 @@ export function Painting() {
   const board = usePuzzle(4, 4, 11)
   return (
     <section className="relative py-24">
-      <GlassPane color="pink" className="top-16 -left-36 h-[520px] w-[440px] -rotate-12 md:hidden" />
-      <GlassPane color="teal" className="-bottom-44 -left-24 hidden h-[580px] w-[440px] -rotate-12 md:block" />
+      <GlassPane color="blue" className="left-[calc(50%+40px)] hidden h-[940px] w-[660px] -rotate-10 md:bottom-[-835px] md:block lg:-bottom-193" />
+      <GlassPane color="teal" className="right-[calc(50%+40px)] hidden h-[560px] w-[620px] rotate-9 md:bottom-[-150px] md:block lg:-bottom-55" />
       <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 md:grid-cols-2">
         <div className="mx-auto w-full max-w-[380px]">
           <PuzzleBoard
@@ -330,8 +333,10 @@ const giantTools = [
 export function Giant() {
   return (
     <section id="giant" className="relative scroll-mt-20 py-24">
-      <GlassPane color="blue" className="-right-36 -bottom-48 hidden h-[680px] w-[500px] rotate-12 md:block" />
-      <GlassPane color="blue" className="-right-24 bottom-[22%] h-[360px] w-[280px] rotate-12 md:hidden" />
+      <GlassPane color="gold" className="hidden h-[860px] w-[640px] -rotate-8 md:-bottom-50 md:left-[calc(50%+220px)] md:block lg:bottom-[-270px] lg:left-[calc(50%+80px)]" />
+      <GlassPane color="pink" className="right-[calc(50%+100px)] hidden w-[760px] -rotate-5 rounded-[44px] md:-bottom-20 md:block md:h-[240px] lg:-bottom-15 lg:h-[260px]" />
+      <GlassPane color="teal" className="top-140 -right-25 h-[420px] w-[320px] -rotate-10 md:hidden" />
+      <GlassPane color="gold" className="-bottom-12 left-[calc(50%-180px)] h-[620px] w-[440px] rotate-10 md:hidden" />
       <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 md:grid-cols-[0.9fr_1.1fr]">
         <div className="flex flex-col gap-8">
           <Heading title="Giant boards" lead="For a long, slow evening: 100 to 300 cards in one picture." />
@@ -397,7 +402,7 @@ export function Pictures() {
   }, [])
   return (
     <section ref={ref} id="pictures" className="relative scroll-mt-20 py-24">
-      <GlassPane color="pink" className="-bottom-56 left-[calc(50%-556px-320px)] hidden h-[300px] w-[320px] rotate-6 md:block" />
+      <GlassPane color="teal" className="-bottom-199 left-[calc(50%+60px)] hidden h-[860px] w-[640px] -rotate-8 md:block" />
       <div className="relative mx-auto flex max-w-6xl flex-col gap-6 px-5">
         <Heading
           title="Thousands of pictures"
@@ -453,9 +458,9 @@ export function OwnPhotos() {
   }
   return (
     <section className="relative py-24">
-      <GlassPane color="gold" className="-right-32 -bottom-48 hidden h-[640px] w-[460px] -rotate-12 md:block" />
-      <GlassPane color="gold" className="-right-24 bottom-[18%] h-[380px] w-[300px] -rotate-12 md:hidden" />
-      <GlassPane color="blue" className="-bottom-24 -left-28 h-[300px] w-[260px] rotate-12 md:hidden" />
+      <GlassPane color="gold" className="-top-23 left-[calc(50%-556px-440px-50px)] hidden h-[1100px] w-[440px] rotate-4 lg:block" />
+      <GlassPane color="pink" className="hidden h-[860px] w-[640px] rotate-10 md:-bottom-20 md:left-[calc(50%+240px)] md:block lg:bottom-[-230px] lg:left-[calc(50%+160px)]" />
+      <GlassPane color="pink" className="bottom-[-50px] left-[calc(50%-220px)] h-[600px] w-[440px] -rotate-9 md:hidden" />
       <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 md:grid-cols-2">
         <div className="flex flex-col gap-6 md:order-1">
           <Heading
@@ -511,9 +516,9 @@ export function Together() {
   ]
   return (
     <section className="relative py-24">
-      <GlassPane color="blue" className="-bottom-44 left-[calc(50%-556px-360px)] hidden h-[400px] w-[360px] rotate-12 md:block" />
-      <GlassPane color="pink" className="bottom-[40%] -left-24 h-[360px] w-[280px] rotate-12 md:hidden" />
-      <GlassPane color="teal" className="top-1/3 -right-36 hidden h-[480px] w-[400px] -rotate-12 md:block" />
+      <GlassPane color="blue" className="left-[calc(50%+60px)] hidden h-[760px] w-[620px] rotate-10 md:-bottom-115 md:block lg:-bottom-140" />
+      <GlassPane color="teal" className="right-[calc(50%+100px)] hidden h-[260px] w-[740px] rotate-6 rounded-[44px] md:-bottom-10 md:block lg:bottom-[-110px]" />
+      <GlassPane color="blue" className="-bottom-13 left-[calc(50%-220px)] h-[360px] w-[440px] rotate-8 md:hidden" />
       <div className="relative mx-auto flex max-w-6xl flex-col gap-12 px-5">
         <Heading
           title="Something to come back to"
@@ -552,7 +557,9 @@ const promises = [
 export function Calm() {
   return (
     <section className="relative py-24">
-      <GlassPane color="gold" className="-bottom-56 left-[calc(50%-556px-380px)] hidden h-[420px] w-[380px] rotate-12 md:block" />
+      <GlassPane color="teal" className="right-[calc(50%+40px)] bottom-[-789px] hidden h-[900px] w-[680px] -rotate-10 md:block" />
+      <GlassPane color="blue" className="-bottom-65 left-[calc(50%+60px)] hidden h-[360px] w-[800px] rotate-6 md:block" />
+      <GlassPane color="teal" className="-bottom-140 left-[calc(50%-200px)] h-[640px] w-[440px] rotate-9 md:hidden" />
       <div className="relative mx-auto max-w-6xl px-5">
         {/* A quiet field of lavender, softly out of focus, with the four promises on frosted glass. */}
         <div className="relative isolate overflow-hidden rounded-[36px] px-5 py-12 shadow-xl sm:px-12 sm:py-16">
