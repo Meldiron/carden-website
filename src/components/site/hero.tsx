@@ -5,8 +5,9 @@ export function Hero() {
   return (
     <section id="top" className="relative">
       {/* Glass panes, down the whole page: every seam between two sections is crossed by a large pane where both sides have room */}
-      {/* (a phone, a board or an empty corner) and, where there is room, a smaller one on the other side. Colours run pink, blue, */}
-      {/* gold, teal seam by seam (the smaller pane two steps on). No pane sits behind text at any width; md: values fit tablets. */}
+      {/* (a phone, a picture or an empty corner) and, where there is room, a smaller one on the other side. Colours run pink, blue, */}
+      {/* gold, teal seam by seam (the smaller pane two steps on). No pane sits behind text, buttons, the playable boards or the */}
+      {/* photo picker at any width; md: values fit tablets. */}
       <GlassPane color="pink" className="-top-30 left-[calc(50%+200px)] hidden h-[660px] w-[600px] rotate-12 md:block" />
       <GlassPane color="blue" className="left-[calc(50%+70px)] hidden h-[880px] w-[680px] rotate-10 md:-bottom-15 md:block lg:-bottom-50" />
       <GlassPane color="teal" className="bottom-[-50px] left-[calc(50%-556px-240px)] hidden h-[300px] w-[500px] -rotate-10 rounded-[44px] lg:block" />
