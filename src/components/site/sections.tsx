@@ -10,6 +10,7 @@ import {
   HourglassIcon,
   LibraryBigIcon,
   MapIcon,
+  PlayIcon,
   ShrinkIcon,
   ShuffleIcon,
   Undo2Icon,
@@ -84,59 +85,67 @@ const steps = [
   },
 ] as const
 
-// The boards take turns, one move after another, so the eye follows a single board at a time. The
-// board that just played keeps its result through the next turn, and the one after that resets
-// quietly (a short fade) while another board is playing, so it is ready when its turn comes. Turns
-// run only while the steps are on screen. With reduced motion every board shows one still frame.
+// The boards stay still until the reader asks: Play the moves runs the three boards once, one after
+// another, so the eye follows a single board at a time; each keeps its result. Playing again first
+// fades every board back to its shuffled start. With reduced motion each board shows one still frame.
 const TURN_MS = 2900
 const FADE_MS = 300
 
-function useTurns(count: number) {
-  const ref = useRef<HTMLOListElement>(null)
+function usePlayback(count: number) {
   const [phases, setPhases] = useState<BoardPhase[]>(() => Array(count).fill("ready"))
   const [active, setActive] = useState(-1)
-  const [visible, setVisible] = useState(false)
-  const next = useRef(0)
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const io = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { threshold: 0.3 })
-    io.observe(el)
-    return () => io.disconnect()
-  }, [])
-  useEffect(() => {
-    if (!visible) return
+  const [playing, setPlaying] = useState(false)
+  const [played, setPlayed] = useState(false)
+  const timers = useRef<number[]>([])
+  useEffect(() => () => timers.current.forEach((t) => window.clearTimeout(t)), [])
+  const at = (ms: number, f: () => void) => timers.current.push(window.setTimeout(f, ms))
+
+  const play = () => {
+    if (playing) return
+    timers.current.forEach((t) => window.clearTimeout(t))
+    timers.current = []
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setPhases(Array(count).fill("play"))
+      setPlayed(true)
       return
     }
-    const fades: number[] = []
-    const turn = () => {
-      const k = next.current
-      next.current = (k + 1) % count
-      const last = (k + count - 1) % count
-      setActive(k)
-      setPhases((ph) => ph.map((p, i) => (i === k ? "play" : i === last ? (p === "play" ? "done" : p) : p === "ready" ? p : "resetting")))
-      fades.push(window.setTimeout(() => setPhases((ph) => ph.map((p) => (p === "resetting" ? "ready" : p))), FADE_MS))
+    setPlaying(true)
+    // Back to the shuffled boards first (a short fade), then one board after another.
+    const start = phases.some((ph) => ph !== "ready") ? FADE_MS + 60 : 0
+    if (start) {
+      setPhases(Array(count).fill("resetting"))
+      at(FADE_MS, () => setPhases(Array(count).fill("ready")))
     }
-    turn()
-    const id = window.setInterval(turn, TURN_MS)
-    return () => {
-      window.clearInterval(id)
-      fades.forEach((f) => window.clearTimeout(f))
+    for (let k = 0; k < count; k++) {
+      at(start + k * TURN_MS, () => {
+        setActive(k)
+        setPhases((ph) => ph.map((p, i) => (i === k ? "play" : i === k - 1 ? "done" : p)))
+      })
     }
-  }, [visible, count])
-  return { ref, phases, active }
+    at(start + count * TURN_MS, () => {
+      setActive(-1)
+      setPhases((ph) => ph.map((p) => (p === "play" ? "done" : p)))
+      setPlaying(false)
+      setPlayed(true)
+    })
+  }
+  return { phases, active, playing, played, play }
 }
 
 export function HowItPlays() {
-  const { ref, phases, active } = useTurns(steps.length)
+  const { phases, active, playing, played, play } = usePlayback(steps.length)
   return (
     <section id="how" className="relative scroll-mt-20 py-24">
       <GlassPane color="teal" className="right-[calc(50%-556px-360px)] -bottom-44 hidden h-[400px] w-[360px] rotate-12 md:block" />
       <div className="relative mx-auto flex max-w-6xl flex-col gap-12 px-5">
-        <Heading title="Two taps make a move" lead="Take your time. Every board saves itself and waits for you." />
-        <ol ref={ref} className="grid gap-4 md:grid-cols-3">
+        <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+          <Heading title="Two taps make a move" lead="Take your time. Every board saves itself and waits for you." />
+          <Button size="xl" variant="secondary" onClick={play} disabled={playing} className="self-start md:self-auto">
+            <PlayIcon data-icon="inline-start" className="fill-current" />
+            {playing ? "Playing" : played ? "Play again" : "Play the moves"}
+          </Button>
+        </div>
+        <ol className="grid gap-4 md:grid-cols-3">
           {steps.map((s, i) => (
             <li key={s.title}>
               <Card
