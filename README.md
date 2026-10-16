@@ -24,6 +24,16 @@ pnpm lint && pnpm typecheck
 
 `dist/client` can be served by any static host.
 
+## Deploy
+
+The site lives on Appwrite Sites as `carden-website` in the Carden project (`appwrite.config.json`), at
+https://carden-website.appwrite.network. With the [Appwrite CLI](https://appwrite.io/docs/tooling/command-line/installation)
+signed in to an account that can reach the project:
+
+```sh
+scripts/deploy.sh   # builds with VITE_SITE_URL set, uploads dist/client, waits until it is live
+```
+
 ## Settings
 
 Set at build time (for example `VITE_SITE_URL=https://example.com pnpm build`):
