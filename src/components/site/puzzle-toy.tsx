@@ -108,12 +108,12 @@ export function usePuzzle(cols: number, rows: number, start: () => number[]) {
   }, [n, cols])
 
   /**
-   * Three moves, quickly one after another. The first two lock a card, always one whose place
-   * touches the cards already in colour; a card in a group takes its whole group home with it. The
-   * third joins two cards that belong together, in the wrong spot, into a group when it can (and
-   * otherwise locks a card too).
+   * `count` moves, quickly one after another (`pace` ms apart). Each locks a card, always one whose
+   * place touches the cards already in colour, and a card in a group takes its whole group home with
+   * it; every third move instead joins two cards that belong together, in the wrong spot, into a
+   * group when it can.
    */
-  const solve = useCallback(() => {
+  const solve = useCallback((count = 3, pace = 170) => {
     stop()
     setSelected(null)
     const swap = (o: number[], a: number, b: number) => {
@@ -181,8 +181,8 @@ export function usePuzzle(cols: number, rows: number, start: () => number[]) {
     }
     const plan: number[][] = []
     let o = order
-    for (let k = 0; k < 3; k++) {
-      const next = (k === 2 && groupOne(o)) || lockOne(o)
+    for (let k = 0; k < count; k++) {
+      const next = (k % 3 === 2 && groupOne(o)) || lockOne(o)
       if (!next) break
       plan.push(next)
       o = next
@@ -192,7 +192,7 @@ export function usePuzzle(cols: number, rows: number, start: () => number[]) {
         window.setTimeout(() => {
           setOrder(next)
           setMoves((m) => m + 1)
-        }, k * 170),
+        }, k * pace),
       ),
     )
   }, [order, cols, n])

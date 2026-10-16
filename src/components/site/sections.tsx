@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react"
-import { flushSync } from "react-dom"
 import {
   CalendarDaysIcon,
   CalendarPlusIcon,
@@ -233,29 +232,50 @@ const shapes = [
 
 // A vertical tab list under the text picks the board on the right: each row names the shape, shows
 // its tiling, and says when it opens. Arrow keys move between rows (Base UI Tabs).
-// Switching shapes reveals the new board behind a diagonal sheet of light (View Transitions; the old
-// board holds still underneath). Where the API is missing, or motion is reduced, it simply switches.
+// Switching shapes reveals the new board behind a diagonal sheet of light, right inside the frame: the
+// new board's layer is wiped in over the old one (which stays beneath), and a band of light travels
+// along the wipe. Nothing outside the frame moves, so the page scrolls as usual. Reduced motion: a switch.
 type Shape = (typeof shapes)[number]["id"]
+
+const REVEAL = { duration: 760, easing: "cubic-bezier(0.65, 0, 0.35, 1)" }
 
 function useShapeSwitch(initial: Shape) {
   const [shape, setShape] = useState<Shape>(initial)
-  const [turns, setTurns] = useState(0)
+  const [under, setUnder] = useState<Shape | null>(null)
+  const layers = useRef(new Map<Shape, HTMLDivElement>())
+  const sheen = useRef<HTMLSpanElement>(null)
+  const first = useRef(true)
+  useEffect(() => {
+    if (first.current) {
+      first.current = false
+      return
+    }
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    layers.current
+      .get(shape)
+      ?.animate([{ clipPath: "polygon(0% 0%, 0% 0%, -36% 100%, -36% 100%)" }, { clipPath: "polygon(0% 0%, 136% 0%, 100% 100%, -36% 100%)" }], REVEAL)
+    sheen.current?.animate(
+      [
+        { transform: "translateX(-130%) skewX(-18deg)", opacity: 1 },
+        { opacity: 1, offset: 0.85 },
+        { transform: "translateX(330%) skewX(-18deg)", opacity: 0 },
+      ],
+      REVEAL,
+    )
+  }, [shape])
   const pick = (next: Shape) => {
     if (next === shape) return
-    const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    if (!("startViewTransition" in document) || calm) return setShape(next)
-    document.startViewTransition(() =>
-      flushSync(() => {
-        setShape(next)
-        setTurns((t) => t + 1)
-      }),
-    )
+    setUnder(shape)
+    setShape(next)
   }
-  return { shape, pick, turns }
+  const layerRef = (id: Shape) => (el: HTMLDivElement | null) => {
+    if (el) layers.current.set(id, el)
+  }
+  return { shape, under, pick, layerRef, sheen }
 }
 
 export function Ways() {
-  const { shape, pick, turns } = useShapeSwitch("triangles")
+  const { shape, under, pick, layerRef, sheen } = useShapeSwitch("triangles")
   return (
     <section id="ways" className="relative scroll-mt-20 py-24">
       <GlassPane color="gold" className="-right-40 -bottom-48 hidden h-[640px] w-[480px] rotate-12 md:block" />
@@ -288,14 +308,18 @@ export function Ways() {
         <div>
           {/* All four boards stay in one frame, so they load together; only the chosen one shows. */}
           <div aria-hidden className="lifted-card relative mx-auto aspect-[3/4] w-full max-w-[460px] rounded-3xl">
-            <div className="shape-board absolute inset-0 overflow-hidden rounded-3xl bg-muted">
+            <div className="absolute inset-0 overflow-hidden rounded-3xl bg-muted">
               {shapes.map((s) => (
-                <div key={s.id} className={cn("absolute inset-0", shape !== s.id && "opacity-0")}>
+                <div
+                  key={s.id}
+                  ref={layerRef(s.id)}
+                  className={cn("absolute inset-0", s.id === shape ? "z-[2]" : s.id === under ? "z-[1]" : "opacity-0")}
+                >
                   <ThemedImage name={`/boards/${s.id}`} alt="" width={900} height={1200} className="size-full object-cover" />
                 </div>
               ))}
+              <span ref={sheen} className="shape-sheen" />
             </div>
-            {turns > 0 && <div key={turns} className="shape-sheen" />}
           </div>
           {shapes.map((s) => (
             <TabsContent key={s.id} value={s.id} className="sr-only">
@@ -337,7 +361,7 @@ export function Painting() {
           </div>
           <div className="flex flex-col gap-3 pt-2">
             <div className="flex flex-wrap gap-3">
-              <Button size="xl" onClick={board.solve} disabled={board.solved}>
+              <Button size="xl" onClick={() => board.solve()} disabled={board.solved}>
                 <WandSparklesIcon data-icon="inline-start" />
                 Solve three cards
               </Button>
@@ -393,9 +417,9 @@ export function Giant() {
           </div>
           <div className="flex flex-col gap-3">
             <div className="flex flex-wrap gap-3">
-              <Button size="xl" onClick={board.solve} disabled={board.solved}>
+              <Button size="xl" onClick={() => board.solve(10, 90)} disabled={board.solved}>
                 <WandSparklesIcon data-icon="inline-start" />
-                Solve three cards
+                Solve ten cards
               </Button>
               <Button size="xl" variant="secondary" onClick={board.reshuffle}>
                 <ShuffleIcon data-icon="inline-start" />
