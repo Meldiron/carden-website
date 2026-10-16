@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from "react"
+import { flushSync } from "react-dom"
 import {
   CalendarDaysIcon,
+  CalendarPlusIcon,
+  CalendarXIcon,
+  CheckIcon,
   CloudIcon,
   EyeOffIcon,
   GiftIcon,
   HourglassIcon,
-  ImagePlusIcon,
   LibraryBigIcon,
   MapIcon,
   ShrinkIcon,
@@ -20,7 +23,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MiniBoard, type BoardPhase } from "@/components/site/mini-board"
-import { PuzzleBoard, usePuzzle } from "@/components/site/puzzle-toy"
+import { giantStart, paintingStart, PuzzleBoard, usePuzzle } from "@/components/site/puzzle-toy"
+import { StreakCard } from "@/components/site/streak"
 import { GlassPane, Phone, ShapeGlyph, ThemedImage } from "@/components/site/visuals"
 import { cn } from "@/lib/utils"
 
@@ -41,7 +45,7 @@ function Heading({ title, lead, className }: { title: string; lead?: string; cla
 const steps = [
   {
     title: "Swap two cards",
-    text: "Tap a card, then the place it belongs.",
+    text: "Tap a card, then the place it belongs. Or simply drag it over.",
     pane: "pink",
     board: {
       picture: "/covers/venice.webp",
@@ -54,7 +58,7 @@ const steps = [
   },
   {
     title: "Join the pieces",
-    text: "Cards that fit join up and move as one.",
+    text: "Cards that belong together join up, then glide around as one.",
     pane: "blue",
     board: {
       picture: "/covers/lighthouses.webp",
@@ -171,6 +175,7 @@ const dailyPerks = [
 ]
 
 export function Daily() {
+  const [days, setDays] = useState(23)
   return (
     <section className="relative py-24">
       <GlassPane color="blue" className="top-24 -left-32 h-[560px] w-[460px] -rotate-12" />
@@ -178,13 +183,7 @@ export function Daily() {
       <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 md:grid-cols-2">
         <div className="relative mx-auto w-full max-w-[340px]">
           <Phone name="daily" alt="This month's daily pictures, with stars on the days already solved" />
-          <ThemedImage
-            name="/cards/streak"
-            alt="A 23-day streak on the Home screen"
-            width={1200}
-            height={512}
-            className="lifted-card absolute -right-6 bottom-10 w-[108%] max-w-none rounded-2xl sm:-right-16"
-          />
+          <StreakCard days={days} className="absolute -right-6 bottom-10 w-[108%] max-w-none sm:-right-16" />
         </div>
         <div className="flex flex-col gap-6">
           <Heading
@@ -201,6 +200,21 @@ export function Daily() {
               </li>
             ))}
           </ul>
+          <div className="flex flex-col gap-3 pt-2">
+            <div className="flex flex-wrap gap-3">
+              <Button size="xl" onClick={() => setDays((d) => d + 1)}>
+                <CalendarPlusIcon data-icon="inline-start" />
+                Add a day
+              </Button>
+              <Button size="xl" variant="secondary" onClick={() => setDays(0)} disabled={days === 0}>
+                <CalendarXIcon data-icon="inline-start" />
+                Miss a day
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground" aria-live="polite">
+              {days === 0 ? "The streak starts again with today's picture." : `${days} days in a row. The gift grows through each week.`}
+            </p>
+          </div>
         </div>
       </div>
     </section>
@@ -219,13 +233,34 @@ const shapes = [
 
 // A vertical tab list under the text picks the board on the right: each row names the shape, shows
 // its tiling, and says when it opens. Arrow keys move between rows (Base UI Tabs).
+// Switching shapes reveals the new board behind a diagonal sheet of light (View Transitions; the old
+// board holds still underneath). Where the API is missing, or motion is reduced, it simply switches.
+type Shape = (typeof shapes)[number]["id"]
+
+function useShapeSwitch(initial: Shape) {
+  const [shape, setShape] = useState<Shape>(initial)
+  const [turns, setTurns] = useState(0)
+  const pick = (next: Shape) => {
+    if (next === shape) return
+    const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    if (!("startViewTransition" in document) || calm) return setShape(next)
+    document.startViewTransition(() =>
+      flushSync(() => {
+        setShape(next)
+        setTurns((t) => t + 1)
+      }),
+    )
+  }
+  return { shape, pick, turns }
+}
+
 export function Ways() {
-  const [shape, setShape] = useState<(typeof shapes)[number]["id"]>("triangles")
+  const { shape, pick, turns } = useShapeSwitch("triangles")
   return (
     <section id="ways" className="relative scroll-mt-20 py-24">
       <GlassPane color="gold" className="-right-40 -bottom-48 hidden h-[640px] w-[480px] rotate-12 md:block" />
       <GlassPane color="gold" className="-right-24 bottom-[14%] h-[340px] w-[280px] rotate-12 md:hidden" />
-      <Tabs value={shape} onValueChange={(v) => setShape(v as typeof shape)} orientation="vertical" className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 md:grid-cols-[0.9fr_1.1fr]">
+      <Tabs value={shape} onValueChange={(v) => pick(v as Shape)} orientation="vertical" className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 md:grid-cols-[0.9fr_1.1fr]">
         <div className="flex flex-col gap-8">
           <Heading
             title="One picture, four ways to cut it"
@@ -251,13 +286,16 @@ export function Ways() {
           </TabsList>
         </div>
         <div>
-          {/* All four boards stay in one frame, so they load together; the chosen one comes into focus. */}
-          <div aria-hidden className="lifted-card relative mx-auto aspect-[3/4] w-full max-w-[460px] overflow-hidden rounded-3xl bg-muted">
-            {shapes.map((s) => (
-              <div key={s.id} data-active={shape === s.id || undefined} className="morph-layer absolute inset-0">
-                <ThemedImage name={`/boards/${s.id}`} alt="" width={900} height={1200} className="size-full object-cover" />
-              </div>
-            ))}
+          {/* All four boards stay in one frame, so they load together; only the chosen one shows. */}
+          <div aria-hidden className="lifted-card relative mx-auto aspect-[3/4] w-full max-w-[460px] rounded-3xl">
+            <div className="shape-board absolute inset-0 overflow-hidden rounded-3xl bg-muted">
+              {shapes.map((s) => (
+                <div key={s.id} className={cn("absolute inset-0", shape !== s.id && "opacity-0")}>
+                  <ThemedImage name={`/boards/${s.id}`} alt="" width={900} height={1200} className="size-full object-cover" />
+                </div>
+              ))}
+            </div>
+            {turns > 0 && <div key={turns} className="shape-sheen" />}
           </div>
           {shapes.map((s) => (
             <TabsContent key={s.id} value={s.id} className="sr-only">
@@ -274,7 +312,7 @@ export function Ways() {
 // Painting: every card starts grey and takes its colour back as it locks.
 
 export function Painting() {
-  const board = usePuzzle(4, 4, 11)
+  const board = usePuzzle(4, 4, paintingStart)
   return (
     <section className="relative py-24">
       <GlassPane color="pink" className="top-16 -left-36 h-[520px] w-[440px] -rotate-12 md:hidden" />
@@ -295,11 +333,11 @@ export function Painting() {
           <Heading title="Bring the colour back" lead="With Painting on, every card starts grey and gets its colour back as it locks." />
           <div className="flex flex-wrap gap-2">
             <Badge variant="secondary">Opens at level 8</Badge>
-            <Badge variant="outline">Pays 25% more</Badge>
+            <Badge variant="outline">25% colour bonus</Badge>
           </div>
           <div className="flex flex-col gap-3 pt-2">
             <div className="flex flex-wrap gap-3">
-              <Button size="xl" onClick={() => board.solve(3)} disabled={board.solved}>
+              <Button size="xl" onClick={board.solve} disabled={board.solved}>
                 <WandSparklesIcon data-icon="inline-start" />
                 Solve three cards
               </Button>
@@ -328,6 +366,7 @@ const giantTools = [
 ]
 
 export function Giant() {
+  const board = usePuzzle(10, 10, giantStart)
   return (
     <section id="giant" className="relative scroll-mt-20 py-24">
       <GlassPane color="blue" className="-right-36 -bottom-48 hidden h-[680px] w-[500px] rotate-12 md:block" />
@@ -352,17 +391,36 @@ export function Giant() {
             <Badge variant="secondary">Opens at level 10</Badge>
             or sooner, for a few tickets
           </div>
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-wrap gap-3">
+              <Button size="xl" onClick={board.solve} disabled={board.solved}>
+                <WandSparklesIcon data-icon="inline-start" />
+                Solve three cards
+              </Button>
+              <Button size="xl" variant="secondary" onClick={board.reshuffle}>
+                <ShuffleIcon data-icon="inline-start" />
+                Shuffle
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground" aria-live="polite">
+              {board.solved ? "The whole picture is in place." : `${board.locked} of ${board.total} cards in place. Or tap two cards to swap them.`}
+            </p>
+          </div>
         </div>
-        <div className="relative mx-auto h-[600px] w-full max-w-[520px] sm:h-[760px]">
-          <Phone
-            name="giant-board"
-            alt="A giant board of colourful houses in tiny cards, only a small part solved"
-            className="absolute top-0 left-0 w-[58%] max-w-[290px]"
+        <div className="relative mx-auto w-full max-w-[500px] pb-24 sm:pb-28">
+          <PuzzleBoard
+            picture="/pictures/holderlin.webp"
+            cols={10}
+            rows={10}
+            dense
+            {...board}
+            onTap={board.tap}
+            label="A giant board of the Hölderlin Tower in Tübingen, a hundred cards: tap two cards to swap them"
           />
           <Phone
             name="giant-zoom"
-            alt="The same giant board zoomed in on a window, with the map of the whole picture in the corner"
-            className="absolute right-0 bottom-0 w-[58%] max-w-[290px]"
+            alt="A giant board in the game, zoomed in on a window, with the map of the whole picture in the corner"
+            className="absolute -right-4 bottom-0 w-[38%] max-w-[190px] sm:-right-10"
           />
         </div>
       </div>
@@ -429,28 +487,55 @@ export function Pictures() {
 // ---------------------------------------------------------------------------------------------
 // Your own photos.
 
-/** Cuts a chosen photo to the board's 3:4 shape in the browser; nothing leaves the page. */
-async function boardPicture(file: File) {
-  const bitmap = await createImageBitmap(file)
-  const h = Math.min(bitmap.height, (bitmap.width * 4) / 3)
-  const w = (h * 3) / 4
-  const canvas = document.createElement("canvas")
-  canvas.width = Math.min(900, Math.round(w))
-  canvas.height = Math.round((canvas.width * 4) / 3)
-  canvas.getContext("2d")?.drawImage(bitmap, (bitmap.width - w) / 2, (bitmap.height - h) / 2, w, h, 0, 0, canvas.width, canvas.height)
-  bitmap.close()
-  return canvas.toDataURL("image/jpeg", 0.88)
+// The iPhone's photo picker (what Add photo opens), in iOS 26's look: Cancel and Add as glass pills, a
+// tight square grid in select mode with three photos ticked (the ones in the My Puzzles capture beside
+// it), and the count on a floating glass bar. It bleeds off the left edge of the page.
+const library = [
+  "covers/islands", "covers/canyons", "pictures/corgi", "covers/japanese-prints",
+  "covers/cherry-blossom", "pictures/kitten", "covers/sushi", "covers/santorini",
+  "covers/tulip-fields", "covers/lavender", "pictures/lighthouse", "covers/northern-lights",
+  "covers/fruit-markets", "covers/hummingbirds", "covers/venice", "covers/frogs",
+]
+const chosen = ["pictures/corgi", "pictures/kitten", "pictures/lighthouse"]
+
+function PhotoPicker() {
+  return (
+    <div
+      role="img"
+      aria-label="The iPhone photo picker in select mode, with a corgi, a kitten and a lighthouse chosen"
+      className="photo-picker relative overflow-hidden rounded-r-[34px]"
+    >
+      <div className="relative z-10 flex items-center justify-between gap-3 px-4 pt-4 pb-3">
+        <span className="picker-glass rounded-full px-4 py-1.5 text-[15px] font-medium">Cancel</span>
+        <span className="flex flex-col items-center gap-1.5">
+          <span className="text-[17px] font-semibold">Photos</span>
+          <span className="picker-glass flex rounded-full p-0.5 text-[12px] font-medium">
+            <span className="picker-seg rounded-full px-3 py-0.5">Photos</span>
+            <span className="px-3 py-0.5 opacity-70">Collections</span>
+          </span>
+        </span>
+        <span className="rounded-full bg-[#0071e3] px-4 py-1.5 text-[15px] font-semibold text-white">Add 3</span>
+      </div>
+      <ul className="grid grid-cols-4 gap-[2px]">
+        {library.map((name) => (
+          <li key={name} className="relative aspect-square overflow-hidden">
+            <img src={`/${name}.webp`} alt="" loading="lazy" decoding="async" className="size-full object-cover" />
+            {chosen.includes(name) && (
+              <span className="absolute right-1.5 bottom-1.5 flex size-[22px] items-center justify-center rounded-full bg-[#0071e3] text-white ring-[1.5px] ring-white">
+                <CheckIcon className="size-3.5" strokeWidth={3} />
+              </span>
+            )}
+          </li>
+        ))}
+      </ul>
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 flex h-28 items-end justify-center bg-gradient-to-t from-[var(--picker-bg)] to-transparent pb-4">
+        <span className="picker-glass rounded-full px-5 py-2 text-[13px] font-semibold">3 photos selected</span>
+      </div>
+    </div>
+  )
 }
 
 export function OwnPhotos() {
-  const board = usePuzzle(3, 3, 5)
-  const [picture, setPicture] = useState("/pictures/corgi.webp")
-  const input = useRef<HTMLInputElement>(null)
-  const choose = async (file?: File) => {
-    if (!file) return
-    setPicture(await boardPicture(file))
-    board.reshuffle()
-  }
   return (
     <section className="relative py-24">
       <GlassPane color="gold" className="-right-32 -bottom-48 hidden h-[640px] w-[460px] -rotate-12 md:block" />
@@ -458,30 +543,11 @@ export function OwnPhotos() {
       <GlassPane color="blue" className="-bottom-24 -left-28 h-[300px] w-[260px] rotate-12 md:hidden" />
       <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 md:grid-cols-2">
         <div className="flex flex-col gap-6 md:order-1">
-          <Heading
-            title="Puzzle your own photos"
-            lead="Turn a favourite photo into a puzzle. It stays private, just for you."
-          />
-          <div className="mt-2 flex items-center gap-6">
-            <PuzzleBoard
-              picture={picture}
-              cols={3}
-              rows={3}
-              {...board}
-              onTap={board.tap}
-              label="A small puzzle of your photo: tap two cards to swap them"
-              className="w-40 shrink-0 sm:w-48"
-            />
-            <div className="flex flex-col items-start gap-3">
-              <p className="text-base font-medium">Try one of yours</p>
-              <Button size="xl" onClick={() => input.current?.click()}>
-                <ImagePlusIcon data-icon="inline-start" />
-                Choose a photo
-              </Button>
-              <p className="text-sm text-muted-foreground">It stays on this page. Nothing is uploaded.</p>
-              <input ref={input} type="file" accept="image/*" className="sr-only" tabIndex={-1} onChange={(e) => choose(e.target.files?.[0])} />
-            </div>
+          <Heading title="Puzzle your own photos" lead="Turn a favourite photo into a puzzle. It stays private, just for you." />
+          <div className="picker-bleed mt-2 h-[30rem] sm:h-[34rem]">
+            <PhotoPicker />
           </div>
+          <p className="text-sm text-muted-foreground">Five photos are free; VIP adds as many as you like.</p>
         </div>
         <div className="relative mx-auto w-full max-w-[340px] md:order-2">
           <Phone name="my-puzzles" alt="My Puzzles with five photos: a corgi, a kitten, a lighthouse, a lagoon and macarons" />
@@ -554,15 +620,17 @@ export function Calm() {
     <section className="relative py-24">
       <GlassPane color="gold" className="-bottom-56 left-[calc(50%-556px-380px)] hidden h-[420px] w-[380px] rotate-12 md:block" />
       <div className="relative mx-auto max-w-6xl px-5">
-        {/* A quiet field of lavender, softly out of focus, with the four promises on frosted glass. */}
-        <div className="relative isolate overflow-hidden rounded-[36px] px-5 py-12 shadow-xl sm:px-12 sm:py-16">
-          <img src="/covers/lavender.webp" alt="" aria-hidden loading="lazy" className="absolute inset-0 -z-10 size-full scale-125 object-cover blur-2xl" />
-          <div aria-hidden className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgb(20_16_40/0.66),rgb(20_16_40/0.22)_55%,rgb(20_16_40/0.4))] dark:bg-[linear-gradient(180deg,rgb(8_6_18/0.75),rgb(8_6_18/0.45)_55%,rgb(8_6_18/0.7))]" />
-          <div className="flex max-w-xl flex-col gap-3">
-            <h2 className="text-4xl leading-[1.08] font-bold tracking-tight text-white sm:text-5xl">Made to be calm</h2>
-            <p className="text-lg leading-relaxed text-white/90">No rush, no noise, nothing watching.</p>
+        {/* The site's own glass: a soft cobalt-to-blush panel with lotus panes inside, the four promises on frosted tiles. */}
+        <div className="relative isolate overflow-hidden rounded-[36px] bg-[linear-gradient(160deg,#e9eefb,#f7f8fd_55%,#fbeef4)] px-5 py-12 shadow-xl ring-1 ring-black/5 sm:px-12 sm:py-16 dark:bg-[linear-gradient(160deg,#141a38,#0f1224_55%,#1d1022)] dark:ring-white/10">
+          <GlassPane color="blue" className="-top-24 -right-16 hidden h-[340px] w-[300px] rotate-12 sm:block" />
+          <GlassPane color="pink" className="-bottom-28 left-[22%] h-[300px] w-[280px] -rotate-6" />
+          <GlassPane color="gold" className="top-[30%] -left-28 hidden h-[280px] w-[240px] -rotate-12 sm:block" />
+          <GlassPane color="teal" className="right-[24%] -bottom-32 hidden h-[260px] w-[240px] rotate-6 lg:block" />
+          <div className="relative flex max-w-xl flex-col gap-3">
+            <h2 className="text-4xl leading-[1.08] font-bold tracking-tight sm:text-5xl">Made to be calm</h2>
+            <p className="text-lg leading-relaxed text-foreground/80">No rush, no noise, nothing watching.</p>
           </div>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="relative mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {promises.map(({ icon: Icon, title, text }) => (
               <div key={title} className="frost-tile flex flex-col gap-4 rounded-3xl p-6">
                 <span className="flex size-11 items-center justify-center rounded-2xl bg-white/80 text-brand dark:bg-white/10" aria-hidden>

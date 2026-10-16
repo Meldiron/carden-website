@@ -258,8 +258,8 @@ function LayersView() {
 }
 
 // ---------------------------------------------------------------------------------------------
-// On your Home Screen: an iPad-like Home Screen over a blurred wallpaper (light on the light page, dark
-// on the dark page) with the Daily widget in all three sizes, a tint control, and a dock holding every
+// On your Home Screen: an iPad-like Home Screen over a glass wallpaper in the manner of iOS 26 (our own
+// drawing, public/brand/wallpaper-*.svg; light on the light page, dark on the dark page) with the Daily widget in all three sizes, a tint control, and a dock holding every
 // look of the icon. The widget follows the app's DailyWidget (ios/DailyWidget): the picture edge to
 // edge, a dark fade at the bottom, "TODAY", the title and, on the larger two, "Tap to play".
 
@@ -269,24 +269,33 @@ const tints = [
   { id: "amber", name: "Amber", color: "#D9952B" },
   { id: "sage", name: "Sage", color: "#4E9F7E" },
   { id: "plum", name: "Plum", color: "#8D63C9" },
+  { id: "graphite", name: "Graphite", color: "#6B7280" },
 ] as const
 
 type WidgetSize = "small" | "medium" | "large"
 
+// Three daily pictures, one per widget size (public domain or CC0, see prepare-assets.py).
+const widgetPicture: Record<WidgetSize, { src: string; title: string }> = {
+  large: { src: "/pictures/lorikeet.webp", title: "Rainbow lorikeet" },
+  medium: { src: "/pictures/primrose.webp", title: "Primrose" },
+  small: { src: "/pictures/barn.webp", title: "Barn Window" },
+}
+
 function DailyWidget({ size, className }: { size: WidgetSize; className?: string }) {
+  const picture = widgetPicture[size]
   const title = { small: "text-[15px]", medium: "text-[18px]", large: "text-[22px]" }[size]
   return (
     <div
       role="img"
-      aria-label={`The Daily puzzle widget, ${size}: today's picture, a rainbow lorikeet`}
+      aria-label={`The Daily puzzle widget, ${size}: ${picture.title}`}
       className={cn("relative isolate overflow-hidden rounded-[22px] shadow-[0_12px_30px_-10px_rgb(0_0_0/0.45)]", className)}
     >
-      <img src="/pictures/lorikeet.webp" alt="" loading="lazy" decoding="async" className="absolute inset-0 -z-10 size-full object-cover" />
+      <img src={picture.src} alt="" loading="lazy" decoding="async" className="absolute inset-0 -z-10 size-full object-cover" />
       {/* The app's fade (clear from 35% to black 78%), a little deeper behind the words so they read on a bright sky. */}
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,transparent_22%,rgb(0_0_0/0.6)_54%,rgb(0_0_0/0.86))]" />
       <div className="flex size-full flex-col justify-end gap-0.5 p-4 leading-tight text-white">
         <span className="text-[10px] font-bold tracking-[0.08em] text-white/90">TODAY</span>
-        <span className={cn(title, "font-bold")}>Rainbow lorikeet</span>
+        <span className={cn(title, "font-bold")}>{picture.title}</span>
         {size !== "small" && <span className="pt-0.5 text-xs font-semibold text-white/80">Tap to play</span>}
       </div>
     </div>
@@ -307,7 +316,7 @@ function Looks() {
     <div className="flex flex-col gap-6">
       <div className="flex max-w-xl flex-col gap-2">
         <h3 className="text-2xl font-bold tracking-tight">On your Home Screen</h3>
-        <p className="leading-relaxed text-muted-foreground">Today's picture in a widget, and the icon in every look.</p>
+        <p className="leading-relaxed text-muted-foreground">The daily picture in a widget, and the icon in every look.</p>
       </div>
       <div className="relative isolate overflow-hidden rounded-[36px] px-5 py-8 shadow-xl ring-1 ring-black/5 sm:px-10 sm:py-12 dark:ring-white/10">
         <div aria-hidden className="wallpaper absolute inset-[-15%] -z-10" />
