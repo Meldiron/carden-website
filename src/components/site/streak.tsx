@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react"
 import { CheckIcon, ChevronRightIcon, FlameIcon, LightbulbIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -36,18 +37,58 @@ function Ticket() {
   )
 }
 
+/**
+ * A changed streak answers quietly: a day added lifts the card, sends one band of light across it and
+ * slides the new count in; a missed day dims the card for a moment. Reduced motion: no movement.
+ */
+function useStreakMotion(days: number) {
+  const card = useRef<HTMLDivElement>(null)
+  const sheen = useRef<HTMLSpanElement>(null)
+  const title = useRef<HTMLSpanElement>(null)
+  const last = useRef(days)
+  useEffect(() => {
+    const before = last.current
+    last.current = days
+    if (before === days || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    const ease = "cubic-bezier(0.3, 0.7, 0.2, 1)"
+    if (days > before) {
+      card.current?.animate([{ translate: "0 0" }, { translate: "0 -5px", offset: 0.35 }, { translate: "0 0" }], { duration: 520, easing: ease })
+      sheen.current?.animate([{ transform: "translateX(-130%) skewX(-18deg)", opacity: 1 }, { opacity: 1, offset: 0.8 }, { transform: "translateX(360%) skewX(-18deg)", opacity: 0 }], {
+        duration: 900,
+        easing: ease,
+      })
+      title.current?.animate([{ opacity: 0, transform: "translateY(8px)" }, { opacity: 1, transform: "none" }], { duration: 360, easing: ease })
+    } else {
+      // Greyed and a touch darker, never see-through: the phone behind the card must not show.
+      card.current?.animate([{ filter: "none" }, { filter: "grayscale(0.85) brightness(0.93)", offset: 0.35 }, { filter: "none" }], { duration: 700, easing: "ease-out" })
+      title.current?.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500, delay: 180, easing: "ease-out", fill: "backwards" })
+    }
+  }, [days])
+  return { card, sheen, title }
+}
+
 export function StreakCard({ days, className }: { days: number; className?: string }) {
   // Days claimed in this gift week (1 to 7); tomorrow pays the next day's gift.
   const week = days === 0 ? 0 : ((days - 1) % 7) + 1
   const next = gifts[week % 7]
+  const motion = useStreakMotion(days)
   return (
-    <div className={cn("rounded-[26px] bg-card p-5 text-card-foreground shadow-[0_30px_60px_-20px_rgb(20_22_50/0.45)] ring-1 ring-black/5 dark:ring-white/10", className)}>
+    <div
+      ref={motion.card}
+      className={cn(
+        "relative overflow-hidden rounded-[26px] bg-card p-5 text-card-foreground shadow-[0_30px_60px_-20px_rgb(20_22_50/0.45)] ring-1 ring-black/5 dark:ring-white/10",
+        className,
+      )}
+    >
+      <span ref={motion.sheen} aria-hidden className="streak-sheen" />
       <div className="flex items-center gap-4">
         <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-secondary text-brand" aria-hidden>
           <FlameIcon className="size-6 fill-current" strokeWidth={1.5} />
         </span>
         <span className="flex min-w-0 flex-1 flex-col">
-          <span className="text-xl leading-tight font-bold">{days === 0 ? "No streak yet" : `${days}-day streak`}</span>
+          <span ref={motion.title} className="text-xl leading-tight font-bold">
+            {days === 0 ? "No streak yet" : `${days}-day streak`}
+          </span>
           <span className="text-[15px] text-muted-foreground">{days === 0 ? "Today's picture starts a new one" : "Claimed · back tomorrow"}</span>
         </span>
         <ChevronRightIcon className="size-5 text-muted-foreground" aria-hidden />

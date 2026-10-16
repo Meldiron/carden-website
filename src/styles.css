@@ -783,8 +783,24 @@
   }
 }
 
-/* ---- The streak card: a day that is ticked pops in. */
+/* ---- The streak card: a day that is ticked pops in; a band of light crosses the card when a day is
+   added (animated from streak.tsx, like the step cards' sheen). */
 @layer components {
+  .streak-sheen {
+    position: absolute;
+    z-index: 1;
+    top: -20%;
+    bottom: -20%;
+    left: 0;
+    width: 30%;
+    pointer-events: none;
+    opacity: 0;
+    background: linear-gradient(100deg, transparent, rgb(255 255 255 / 0.55) 46%, rgb(255 255 255 / 0.2) 56%, transparent);
+    transform: translateX(-130%) skewX(-18deg);
+  }
+  .dark .streak-sheen {
+    background: linear-gradient(100deg, transparent, rgb(255 255 255 / 0.16) 46%, rgb(255 255 255 / 0.05) 56%, transparent);
+  }
   .streak-dot[data-claimed] {
     animation: streak-pop 360ms cubic-bezier(0.3, 1.5, 0.5, 1) both;
   }

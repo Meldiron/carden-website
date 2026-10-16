@@ -11,6 +11,7 @@ import {
   LibraryBigIcon,
   MapIcon,
   PlayIcon,
+  RotateCcwIcon,
   ShrinkIcon,
   ShuffleIcon,
   Undo2Icon,
@@ -85,77 +86,72 @@ const steps = [
   },
 ] as const
 
-// The boards stay still until the reader asks: Play the moves runs the three boards once, one after
-// another, so the eye follows a single board at a time; each keeps its result. Playing again first
-// fades every board back to its shuffled start. With reduced motion each board shows one still frame.
-const TURN_MS = 2900
+// Each board stays still until its own Play button is pressed: it then plays its move once (about
+// --t, 3.4 s) and keeps the result; pressing again fades it back to its shuffled start first. Boards
+// play independently. With reduced motion a board shows one still frame instead.
+const RUN_MS = 3400
 const FADE_MS = 300
 
-function usePlayback(count: number) {
+function useBoardPlay(count: number) {
   const [phases, setPhases] = useState<BoardPhase[]>(() => Array(count).fill("ready"))
-  const [active, setActive] = useState(-1)
-  const [playing, setPlaying] = useState(false)
-  const [played, setPlayed] = useState(false)
+  const [played, setPlayed] = useState<boolean[]>(() => Array(count).fill(false))
   const timers = useRef<number[]>([])
   useEffect(() => () => timers.current.forEach((t) => window.clearTimeout(t)), [])
   const at = (ms: number, f: () => void) => timers.current.push(window.setTimeout(f, ms))
+  const setOne = (i: number, phase: BoardPhase) => setPhases((ph) => ph.map((p, k) => (k === i ? phase : p)))
+  const finish = (i: number) => setPlayed((pl) => pl.map((p, k) => (k === i ? true : p)))
 
-  const play = () => {
-    if (playing) return
-    timers.current.forEach((t) => window.clearTimeout(t))
-    timers.current = []
+  const play = (i: number) => {
+    if (phases[i] === "play" || phases[i] === "resetting") return
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setPhases(Array(count).fill("play"))
-      setPlayed(true)
+      setOne(i, "play")
+      finish(i)
       return
     }
-    setPlaying(true)
-    // Back to the shuffled boards first (a short fade), then one board after another.
-    const start = phases.some((ph) => ph !== "ready") ? FADE_MS + 60 : 0
+    // A board that already played fades back to its shuffled start first.
+    const start = phases[i] === "ready" ? 0 : FADE_MS + 60
     if (start) {
-      setPhases(Array(count).fill("resetting"))
-      at(FADE_MS, () => setPhases(Array(count).fill("ready")))
+      setOne(i, "resetting")
+      at(FADE_MS, () => setOne(i, "ready"))
     }
-    for (let k = 0; k < count; k++) {
-      at(start + k * TURN_MS, () => {
-        setActive(k)
-        setPhases((ph) => ph.map((p, i) => (i === k ? "play" : i === k - 1 ? "done" : p)))
-      })
-    }
-    at(start + count * TURN_MS, () => {
-      setActive(-1)
-      setPhases((ph) => ph.map((p) => (p === "play" ? "done" : p)))
-      setPlaying(false)
-      setPlayed(true)
+    at(start, () => setOne(i, "play"))
+    at(start + RUN_MS, () => {
+      setOne(i, "done")
+      finish(i)
     })
   }
-  return { phases, active, playing, played, play }
+  return { phases, played, play }
 }
 
 export function HowItPlays() {
-  const { phases, active, playing, played, play } = usePlayback(steps.length)
+  const { phases, played, play } = useBoardPlay(steps.length)
   return (
     <section id="how" className="relative scroll-mt-20 py-24">
       <GlassPane color="teal" className="right-[calc(50%-556px-360px)] -bottom-44 hidden h-[400px] w-[360px] rotate-12 md:block" />
       <div className="relative mx-auto flex max-w-6xl flex-col gap-12 px-5">
-        <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
-          <Heading title="Two taps make a move" lead="Take your time. Every board saves itself and waits for you." />
-          <Button size="xl" variant="secondary" onClick={play} disabled={playing} className="self-start md:self-auto">
-            <PlayIcon data-icon="inline-start" className="fill-current" />
-            {playing ? "Playing" : played ? "Play again" : "Play the moves"}
-          </Button>
-        </div>
+        <Heading title="Two taps make a move" lead="Take your time. Every board saves itself and waits for you." />
         <ol className="grid gap-4 md:grid-cols-3">
-          {steps.map((s, i) => (
+          {steps.map((s, i) => {
+            const busy = phases[i] === "play" || phases[i] === "resetting"
+            return (
             <li key={s.title}>
               <Card
-                data-active={active === i || undefined}
+                data-active={busy || undefined}
                 className="h-full pt-0 transition-[translate,box-shadow] duration-500 ease-out data-active:-translate-y-1.5 data-active:shadow-[0_22px_44px_-20px_rgb(47_79_191/0.45)] data-active:ring-brand/35"
               >
                 <div className="step-sheen relative flex h-72 items-center justify-center overflow-hidden bg-muted/60">
                   <GlassPane color={s.pane} className="-top-10 -right-12 h-44 w-40 rotate-12 rounded-[36px]" />
                   <GlassPane color={i === 1 ? "teal" : i === 2 ? "pink" : "gold"} className="-bottom-14 -left-10 h-40 w-36 -rotate-12 rounded-[32px]" />
                   <MiniBoard {...s.board} phase={phases[i]} className="relative h-60" />
+                  <button
+                    type="button"
+                    onClick={() => play(i)}
+                    disabled={busy}
+                    aria-label={`${played[i] ? "Play again" : "Play"}: ${s.title}`}
+                    className="frost absolute right-3 bottom-3 z-10 flex size-11 cursor-pointer items-center justify-center rounded-full text-brand shadow-[0_6px_18px_-6px_rgb(20_22_50/0.35)] ring-1 ring-foreground/10 transition-[transform,opacity] hover:scale-105 focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none disabled:cursor-default disabled:opacity-50 disabled:hover:scale-100"
+                  >
+                    {played[i] && !busy ? <RotateCcwIcon className="size-5" /> : <PlayIcon className="ml-0.5 size-5 fill-current" />}
+                  </button>
                 </div>
                 <CardHeader className="gap-3">
                   <span className="flex size-10 items-center justify-center rounded-xl bg-secondary font-heading text-lg font-bold text-secondary-foreground" aria-hidden>
@@ -166,7 +162,8 @@ export function HowItPlays() {
                 </CardHeader>
               </Card>
             </li>
-          ))}
+            )
+          })}
         </ol>
       </div>
     </section>
