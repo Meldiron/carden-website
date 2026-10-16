@@ -58,7 +58,10 @@ The site follows the app and its App Store screenshots:
   panes run across the bands: sections do not clip their panes, the page does. Each boundary has one
   pane crossing it, on alternating sides; next to text it stays in the side margin (anchored to the
   content edge, `calc(50% - 556px - <width>)`), and only behind phones and boards does a pane reach
-  into a column. Panes sit above every band and below every section's content.
+  into a column. A dim band is the white ground seen through a filter sheet laid over the panes, so a
+  pane changes tint exactly where it crosses into it (layers: panes, the band's sheet, content).
+- **Write `backdrop-filter` without the `-webkit-` copy.** The build adds the prefix; writing both
+  made it keep only the prefixed one, which Chrome ignores.
 - **Contrast.** Every line of text keeps 4.5:1 against what is really behind it, panes included (3:1
   for large headlines), in both themes, on phones and desktops. Check after moving a pane.
 - **Type.** Headlines in SF Pro Rounded (`ui-rounded`, so Safari on Apple devices shows it), body text in the
@@ -88,13 +91,19 @@ and writes the pieces' outlines, anchors and handles to `src/components/site/lot
 node scripts/export-lotus.mjs
 ```
 
+The playable boards (Painting, and your own photo, which is cut in the browser and never uploaded)
+are `src/components/site/puzzle-toy.tsx`; their pictures, and the lorikeet in the Daily widgets, are
+catalogue pictures in `public/pictures` (public domain or CC0), fetched by `prepare-assets.py`.
+
 The step boards in "Two taps make a move" (`src/components/site/mini-board.tsx`, `.mb-*` in `src/styles.css`)
 are drawn in CSS the way the game draws its board, from a pack cover.
 
-The share thumbnail `public/og.png` (1200 x 630) is rendered from `scripts/og/og.html`:
+The share thumbnail `public/og.png` (1200 x 630) is rendered from `scripts/og/og.html`, and the tab icon
+(`public/favicon.svg` from `export-lotus.mjs`: the flower alone, light and dark glass) to a PNG copy:
 
 ```sh
 scripts/render-og.sh
+scripts/render-favicon.sh
 ```
 
 The code is yours to read and learn from; the Carden name, icon, screenshots and pictures are not licensed

@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils"
 const meanings = [
   { piece: "The pink bud", text: "Today's picture, waiting to open.", swatch: "linear-gradient(150deg, #FF8FB5, #FF4F8B)" },
   { piece: "The gold petal", text: "The stars a finished picture earns.", swatch: "linear-gradient(150deg, #FFB91F, #C97400)" },
-  { piece: "The blue petal", text: "The edge that joins pieces that belong together.", swatch: "linear-gradient(150deg, #8CCBFF, #2F86F2)" },
+  { piece: "The blue petal", text: "The edge that joins pieces together.", swatch: "linear-gradient(150deg, #8CCBFF, #2F86F2)" },
   { piece: "The two green cups", text: "The two taps that make every move.", swatch: "linear-gradient(180deg, #2EC4A0 50%, #16927E 50%)" },
 ]
 
@@ -26,7 +26,7 @@ export function Lotus() {
           <div className="flex flex-col gap-9">
             <div className="flex max-w-md flex-col gap-4">
               <h2 className="text-4xl leading-[1.08] font-bold tracking-tight sm:text-5xl">Five pieces of glass</h2>
-              <p className="text-lg leading-relaxed text-muted-foreground">Our icon is a puzzle too. It only blooms once every piece fits.</p>
+              <p className="text-lg leading-relaxed text-muted-foreground">Our icon is a puzzle too. It blooms once every piece fits.</p>
             </div>
             <ul className="flex max-w-md flex-col gap-5">
               {meanings.map((m) => (
@@ -258,7 +258,10 @@ function LayersView() {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Every look: the icon over a light and a dark Home Screen wallpaper.
+// On your Home Screen: an iPad-like Home Screen over a blurred wallpaper (light on the light page, dark
+// on the dark page) with the Daily widget in all three sizes, a tint control, and a dock holding every
+// look of the icon. The widget follows the app's DailyWidget (ios/DailyWidget): the picture edge to
+// edge, a dark fade at the bottom, "TODAY", the title and, on the larger two, "Tap to play".
 
 const tints = [
   { id: "cobalt", name: "Cobalt", color: "#5B78E6" },
@@ -268,80 +271,93 @@ const tints = [
   { id: "plum", name: "Plum", color: "#8D63C9" },
 ] as const
 
+type WidgetSize = "small" | "medium" | "large"
+
+function DailyWidget({ size, className }: { size: WidgetSize; className?: string }) {
+  const title = { small: "text-[15px]", medium: "text-[18px]", large: "text-[22px]" }[size]
+  return (
+    <div
+      role="img"
+      aria-label={`The Daily puzzle widget, ${size}: today's picture, a rainbow lorikeet`}
+      className={cn("relative isolate overflow-hidden rounded-[22px] shadow-[0_12px_30px_-10px_rgb(0_0_0/0.45)]", className)}
+    >
+      <img src="/pictures/lorikeet.webp" alt="" loading="lazy" decoding="async" className="absolute inset-0 -z-10 size-full object-cover" />
+      {/* The app's fade (clear from 35% to black 78%), a little deeper behind the words so they read on a bright sky. */}
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,transparent_22%,rgb(0_0_0/0.6)_54%,rgb(0_0_0/0.86))]" />
+      <div className="flex size-full flex-col justify-end gap-0.5 p-4 leading-tight text-white">
+        <span className="text-[10px] font-bold tracking-[0.08em] text-white/90">TODAY</span>
+        <span className={cn(title, "font-bold")}>Rainbow lorikeet</span>
+        {size !== "small" && <span className="pt-0.5 text-xs font-semibold text-white/80">Tap to play</span>}
+      </div>
+    </div>
+  )
+}
+
 function Looks() {
   const [tint, setTint] = useState<string>("cobalt")
-  const tinted = (side: "light" | "dark") => `/brand/tints/${tint}-${side}.svg`
-  const screens = [
-    {
-      side: "light" as const,
-      wallpaper: "/covers/cherry-blossom.webp",
-      icons: [
-        { label: "Default", src: "/brand/looks/default.svg" },
-        { label: "Clear", src: "/brand/looks/clear-light.svg", clear: true },
-        { label: "Tinted", src: tinted("light") },
-      ],
-    },
-    {
-      side: "dark" as const,
-      wallpaper: "/covers/nebulae.webp",
-      icons: [
-        { label: "Dark", src: "/brand/looks/dark.svg" },
-        { label: "Clear", src: "/brand/looks/clear-dark.svg", clear: true },
-        { label: "Tinted", src: tinted("dark") },
-      ],
-    },
+  const icons = [
+    { label: "Default", src: "/brand/looks/default.svg" },
+    { label: "Dark", src: "/brand/looks/dark.svg" },
+    { label: "Clear", src: "/brand/looks/clear-light.svg", clear: "light" },
+    { label: "Clear dark", src: "/brand/looks/clear-dark.svg", clear: "dark" },
+    { label: "Tinted", src: `/brand/tints/${tint}-light.svg` },
+    { label: "Tinted dark", src: `/brand/tints/${tint}-dark.svg` },
   ]
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div className="flex max-w-xl flex-col gap-2">
-          <h3 className="text-2xl font-bold tracking-tight">On your Home Screen</h3>
-          <p className="leading-relaxed text-muted-foreground">Default, dark, clear or tinted.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <span id="tint-label" className="text-sm text-muted-foreground">
-            Tint
-          </span>
-          <ToggleGroup aria-labelledby="tint-label" value={[tint]} onValueChange={(v: string[]) => v[0] && setTint(v[0])} spacing={1}>
-            {tints.map((t) => (
-              <ToggleGroupItem
-                key={t.id}
-                value={t.id}
-                aria-label={t.name}
-                className="size-9 min-w-0 rounded-full p-0 hover:bg-transparent aria-pressed:bg-transparent data-[state=on]:bg-transparent"
-              >
-                <span
-                  className="size-6 rounded-full ring-offset-2 ring-offset-background transition-shadow group-aria-pressed/toggle:ring-2 group-aria-pressed/toggle:ring-foreground/70"
-                  style={{ background: t.color }}
-                />
-              </ToggleGroupItem>
-            ))}
-          </ToggleGroup>
-        </div>
+      <div className="flex max-w-xl flex-col gap-2">
+        <h3 className="text-2xl font-bold tracking-tight">On your Home Screen</h3>
+        <p className="leading-relaxed text-muted-foreground">Today's picture in a widget, and the icon in every look.</p>
       </div>
-      <div className="grid gap-4 md:grid-cols-2">
-        {screens.map((s) => (
-          <div key={s.side} className="relative isolate overflow-hidden rounded-[28px] px-6 py-9 shadow-lg ring-1 ring-black/5 dark:ring-white/10">
-            <div aria-hidden className="absolute inset-[-12%] -z-10 scale-110 bg-cover bg-center blur-2xl" style={{ backgroundImage: `url(${s.wallpaper})` }} />
-            <div aria-hidden className={cn("absolute inset-0 -z-10", s.side === "dark" ? "bg-black/45" : "bg-white/20")} />
-            <ul className="flex justify-around gap-4">
-              {s.icons.map((ic) => (
-                <li key={ic.label} className="flex flex-col items-center gap-2.5">
-                  <span
-                    className={cn(
-                      "block size-[72px] overflow-hidden rounded-[22.37%] shadow-[0_8px_20px_-6px_rgb(0_0_0/0.35)] sm:size-20",
-                      ic.clear && (s.side === "dark" ? "bg-black/25 backdrop-blur-md" : "bg-white/25 backdrop-blur-md"),
-                      ic.clear && "ring-1 ring-white/40",
-                    )}
-                  >
-                    <img src={ic.src} alt={`The ${ic.label.toLowerCase()} icon in ${s.side} mode`} width={80} height={80} loading="lazy" className="size-full" />
+      <div className="relative isolate overflow-hidden rounded-[36px] px-5 py-8 shadow-xl ring-1 ring-black/5 sm:px-10 sm:py-12 dark:ring-white/10">
+        <div aria-hidden className="wallpaper absolute inset-[-15%] -z-10" />
+        <div className="mx-auto flex w-fit flex-col gap-8">
+          <div className="flex flex-col gap-6 md:flex-row md:gap-10">
+            <DailyWidget size="large" className="order-3 aspect-square w-full max-w-[328px] md:order-none md:w-[328px]" />
+            <div className="flex flex-col gap-6">
+              <DailyWidget size="medium" className="aspect-[328/152] w-full max-w-[328px] md:w-[328px]" />
+              <div className="flex gap-6">
+                <DailyWidget size="small" className="aspect-square w-[calc(50%-12px)] max-w-[152px] md:w-[152px]" />
+                <div className="frost-tile flex aspect-square w-[calc(50%-12px)] max-w-[152px] flex-col justify-between rounded-[22px] p-4 md:w-[152px]">
+                  <span id="tint-label" className="text-[13px] font-semibold">
+                    Icon tint
                   </span>
-                  <span className={cn("text-[13px] font-medium", s.side === "dark" ? "text-white" : "text-black/80")}>{ic.label}</span>
-                </li>
-              ))}
-            </ul>
+                  <ToggleGroup aria-labelledby="tint-label" value={[tint]} onValueChange={(v: string[]) => v[0] && setTint(v[0])} spacing={1} className="flex-wrap gap-1.5">
+                    {tints.map((t) => (
+                      <ToggleGroupItem
+                        key={t.id}
+                        value={t.id}
+                        aria-label={t.name}
+                        className="size-8 min-w-0 rounded-full p-0 hover:bg-transparent aria-pressed:bg-transparent data-[state=on]:bg-transparent"
+                      >
+                        <span
+                          className="size-6 rounded-full ring-white/90 ring-offset-0 transition-shadow group-aria-pressed/toggle:ring-[3px]"
+                          style={{ background: t.color }}
+                        />
+                      </ToggleGroupItem>
+                    ))}
+                  </ToggleGroup>
+                </div>
+              </div>
+            </div>
           </div>
-        ))}
+          <ul aria-label="Every look of the Carden icon" className="frost-tile grid grid-cols-3 justify-items-center gap-x-4 gap-y-4 rounded-[30px] px-4 py-4 sm:grid-cols-6 sm:gap-x-5">
+            {icons.map((ic) => (
+              <li key={ic.label} className="flex w-16 flex-col items-center gap-1.5">
+                <span
+                  className={cn(
+                    "block size-14 overflow-hidden rounded-[22.37%] shadow-[0_6px_16px_-6px_rgb(0_0_0/0.4)] sm:size-16",
+                    ic.clear === "light" && "bg-white/30 ring-1 ring-white/50 backdrop-blur-md",
+                    ic.clear === "dark" && "bg-black/30 ring-1 ring-white/25 backdrop-blur-md",
+                  )}
+                >
+                  <img src={ic.src} alt={`The ${ic.label.toLowerCase()} icon`} width={64} height={64} loading="lazy" className="size-full" />
+                </span>
+                <span className="text-center text-[12px] leading-tight font-medium whitespace-nowrap">{ic.label}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   )

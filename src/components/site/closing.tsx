@@ -1,3 +1,5 @@
+import { CheckIcon } from "lucide-react"
+
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Separator } from "@/components/ui/separator"
 import { PlayButtons } from "@/components/site/cta"
@@ -5,36 +7,45 @@ import { Logo } from "@/components/site/header"
 import { GlassPane } from "@/components/site/visuals"
 import { appStoreLive, links } from "@/config"
 
-const questions = [
+// Short answers, one or two sentences each; a list where a sentence would turn into a wall.
+const questions: { q: string; a: string; list?: string[]; note?: string }[] = [
   {
     q: "Is Carden free?",
-    a: "Yes. You can play every day without paying. Six starter packs and this month's daily pictures are free, and other packs open with the coins and tickets you earn by playing. VIP opens every pack at once.",
+    a: "Yes. This month's daily pictures and six starter packs are free, and you earn coins and tickets for the rest just by playing.",
   },
   {
     q: "Do I need an account?",
-    a: "No. You start as a guest in one tap. Sign in with Apple or with email when you want your progress on more than one device.",
+    a: "No, you start as a guest. Sign in with Apple or email whenever you want your progress on more devices.",
   },
   {
     q: "Where can I play?",
-    a: `In any modern browser at ${links.play.replace("https://", "")}, and on iPhone. ${
-      appStoreLive ? "The iPhone app is on the App Store." : "The iPhone app is in public beta on TestFlight while it gets ready for the App Store."
+    a: `On iPhone, and in any browser at ${links.play.replace("https://", "")}. ${
+      appStoreLive ? "The iPhone app is on the App Store." : "The iPhone app is in public beta on TestFlight for now."
     }`,
   },
   {
     q: "Where do the pictures come from?",
-    a: "Most are photographs and paintings from public collections such as Wikimedia Commons, under public-domain and Creative Commons licences. Every picture shows its author and licence. A few packs, marked AI, hold generated pictures.",
+    a: "Mostly public-domain and Creative Commons photos and paintings, each credited to its author. A few packs, marked AI, hold generated pictures.",
   },
   {
     q: "What does VIP include?",
-    a: "Every pack, including past months of daily pictures, one more daily and weekly quest, 500 bonus coins every week, unlimited photos in My Puzzles, and none of the game's own promotions. Both plans start with a 7-day free trial, and VIP can be shared with your family.",
+    a: "Everything in the free game, plus:",
+    list: [
+      "Every pack, including past months of daily pictures",
+      "One more daily and weekly quest",
+      "500 bonus coins every week",
+      "Unlimited photos in My Puzzles",
+      "None of the game's own promotions",
+    ],
+    note: "Both plans start with a 7-day free trial, and you can share VIP with your family.",
   },
   {
     q: "What happens to my photos?",
-    a: "They are stored privately for your account, and only you can see them. Deleting your account deletes them too.",
+    a: "They stay private to your account. If you delete your account, they go with it.",
   },
   {
     q: "How do I get help?",
-    a: `Write to ${links.supportEmail}, or use Settings, then Help, in the game.`,
+    a: `Write to ${links.supportEmail}, or open Settings, then Help, in the game.`,
   },
 ]
 
@@ -58,7 +69,20 @@ export function Faq() {
           {questions.map((item) => (
             <AccordionItem key={item.q} value={item.q}>
               <AccordionTrigger className="py-5 text-left text-lg font-semibold">{item.q}</AccordionTrigger>
-              <AccordionContent className="text-base leading-relaxed text-muted-foreground">{item.a}</AccordionContent>
+              <AccordionContent className="flex flex-col gap-3 text-base leading-relaxed text-muted-foreground">
+                <p>{item.a}</p>
+                {item.list && (
+                  <ul className="flex flex-col gap-2">
+                    {item.list.map((line) => (
+                      <li key={line} className="flex items-start gap-2.5 text-foreground">
+                        <CheckIcon className="mt-1 size-4 shrink-0 text-brand" aria-hidden />
+                        {line}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {item.note && <p className="text-sm">{item.note}</p>}
+              </AccordionContent>
             </AccordionItem>
           ))}
         </Accordion>

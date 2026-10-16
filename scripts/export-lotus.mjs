@@ -7,6 +7,7 @@
 // public/brand/looks/<look>.svg    the icon in every iOS look (Default, Dark, Clear, Tinted; light and dark)
 // public/brand/tints/<tint>-<light|dark>.svg   the Tinted look in a few tint colours
 // public/brand/layers/<theme>/<piece>.svg      each glass piece alone, for the exploded view
+// public/favicon.svg                           the flower alone, cropped close, light and dark glass in one file
 // src/components/site/lotus-geometry.ts        the pieces' outlines with their anchors and handles
 import { createRequire } from "node:module"
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs"
@@ -54,6 +55,18 @@ for (const [theme, mode] of [["light", "light"], ["dark", "dark"]]) {
   })
 }
 icon.draw = draw
+
+// The favicon: the flower alone on a transparent ground, cropped close (the artwork spans y 14.5 to
+// 86.6 and x 19.5 to 80.5; a little room below for the glass's shadow). Light and dark glass in one
+// file; the browser's colour scheme picks one.
+const inner = (svgText) => svgText.replace(/^<svg[^>]*>/, "").replace(/<\/svg>$/, "")
+const flower = (mode) => inner(brand.svg(brand.FINAL, mode, { background: false }))
+write(
+  out("..", "favicon.svg"),
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="12.5 13.4 75 75">` +
+    `<style>.d{display:none}@media (prefers-color-scheme:dark){.l{display:none}.d{display:inline}}</style>` +
+    `<g class="l">${flower("light")}</g><g class="d">${flower("dark")}</g></svg>\n`,
+)
 
 // The outlines, read from the drawing's LOTUS paths and placed as the icon places them
 // (lotus(): translate(0 -2), the right petal mirrored about x = 50; FV1 is drawn at scale 1).

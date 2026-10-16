@@ -112,6 +112,8 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* No lone word on a last line, anywhere (headings balance instead). */
+    text-wrap: pretty;
   }
   h1, h2, h3 {
     @apply font-heading;
@@ -172,12 +174,25 @@
     overflow: clip;
   }
   /* Section bands alternate one by one, white then dim, down the whole page (and the footer
-     continues the rhythm), whatever order the sections are in. */
-  .page > section:nth-child(odd),
+     continues the rhythm), whatever order the sections are in. A dim band is the white ground seen
+     through a sheet of filter (::after): it tones the band and every pane under it, so a pane that
+     crosses into a dim band changes tint right at the boundary. Light: a touch darker and richer;
+     dark: the raised band lifts the glass. Layers: panes 1, the band's sheet 2, content 3. */
+  .page > section,
   .page-footer {
     background: var(--background);
   }
-  .page > section:nth-child(even),
+  .page > section:nth-child(even)::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    backdrop-filter: brightness(0.962) saturate(1.45);
+  }
+  .dark .page > section:nth-child(even)::after {
+    backdrop-filter: brightness(1.55) saturate(0.85);
+  }
   .page:has(> section:last-child:nth-child(odd)) ~ .page-footer {
     background: var(--canvas);
   }
@@ -186,14 +201,13 @@
   }
   .page > section > :not(.glass-pane) {
     position: relative;
-    z-index: 2;
+    z-index: 3;
   }
 
   /* Frosted glass for bars and cards that float over the panes. */
   .frost {
     background: color-mix(in oklab, var(--background) 72%, transparent);
     backdrop-filter: blur(24px) saturate(1.35);
-    -webkit-backdrop-filter: blur(24px) saturate(1.35);
   }
 
   /* A phone or a picture lifted off the page. */
@@ -337,7 +351,6 @@
     background: rgb(255 255 255 / 0.45);
     box-shadow: 0 0 0 2px rgb(255 255 255 / 0.95), 0 6px 14px rgb(0 0 0 / 0.3);
     backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
     opacity: 0;
     pointer-events: none;
   }
@@ -354,7 +367,6 @@
     background: rgb(255 255 255 / 0.78);
     box-shadow: 0 8px 20px rgb(0 0 0 / 0.22);
     backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
     opacity: 0;
     transform: translate(-50%, 8px) scale(0.9);
   }
@@ -590,4 +602,184 @@
   30% { transform: rotate(calc(0.8deg * var(--lean, 1))); }
   60% { transform: rotate(calc(-0.4deg * var(--lean, 1))); }
   100% { transform: rotate(0deg); }
+}
+
+/* ---- Playable boards (puzzle-toy.tsx): the same card language as the step boards, moved by CSS
+   transitions. A swap slides both cards; a card that locks loses its frame and gutter, and in
+   Painting (data-painting) it takes its colour back. */
+@layer components {
+  .toy-board {
+    --g: 3px;
+    --r: 10px;
+    --mb-frame: #ffffff;
+    --mb-edge: rgb(0 0 0 / 0.22);
+    --mb-ink: #111118;
+    position: relative;
+    overflow: hidden;
+    border-radius: 20px;
+    background: var(--muted);
+    box-shadow: 0 30px 60px -28px rgb(20 22 50 / 0.45);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .dark .toy-board {
+    --mb-frame: #a9aeb9;
+    --mb-edge: rgb(0 0 0 / 0.55);
+    --mb-ink: #ffffff;
+    box-shadow: 0 30px 60px -28px rgb(0 0 0 / 0.8);
+  }
+  .toy-piece {
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    transition: transform 460ms cubic-bezier(0.3, 0.7, 0.2, 1);
+  }
+  .toy-piece:disabled {
+    cursor: default;
+  }
+  .toy-piece:focus-visible {
+    outline: none;
+  }
+  .toy-piece:focus-visible .toy-frame {
+    box-shadow: 0 0 0 3px var(--ring);
+  }
+  .toy-piece[data-selected] {
+    z-index: 3;
+  }
+  .toy-lift {
+    position: absolute;
+    inset: 0;
+    transition: transform 200ms ease;
+  }
+  .toy-piece[data-selected] .toy-lift {
+    transform: scale(1.06);
+  }
+  .toy-img {
+    position: absolute;
+    inset: 0;
+    background-repeat: no-repeat;
+    clip-path: inset(var(--g) round var(--r));
+    filter: brightness(0.84);
+    transition: clip-path 380ms ease, filter 700ms ease;
+  }
+  .toy-board[data-painting] .toy-piece:not([data-locked]) .toy-img {
+    filter: grayscale(1) brightness(0.95) contrast(1.05);
+  }
+  .toy-piece[data-locked] .toy-img {
+    clip-path: inset(0px round 0px);
+    filter: none;
+  }
+  .toy-frame {
+    position: absolute;
+    inset: var(--g);
+    border-radius: var(--r);
+    box-shadow:
+      inset 0 0 0 2px var(--mb-frame),
+      0 0 0 1px var(--mb-edge),
+      0 2px 5px rgb(0 0 0 / 0.14);
+    transition: opacity 300ms ease, box-shadow 200ms ease;
+  }
+  .toy-piece[data-locked] .toy-frame {
+    opacity: 0;
+  }
+  .toy-piece[data-selected] .toy-frame {
+    box-shadow: 0 0 0 2px var(--mb-ink), 0 10px 22px rgb(0 0 0 / 0.3);
+  }
+  .toy-done {
+    position: absolute;
+    z-index: 4;
+    left: 50%;
+    bottom: 6%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--foreground);
+    background: color-mix(in oklab, var(--background) 80%, transparent);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 10px 24px rgb(0 0 0 / 0.22);
+    transform: translateX(-50%);
+    animation: toy-done 420ms cubic-bezier(0.3, 1.3, 0.5, 1) both;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .toy-piece,
+    .toy-lift,
+    .toy-img,
+    .toy-frame {
+      transition: none;
+    }
+    .toy-done {
+      animation: none;
+    }
+  }
+}
+
+@keyframes toy-done {
+  from { opacity: 0; transform: translate(-50%, 10px) scale(0.92); }
+}
+
+/* ---- The shape boards morph: the old board blurs and fades while the new one comes into focus. */
+@layer components {
+  .morph-layer {
+    opacity: 0;
+    filter: blur(14px) saturate(1.2);
+    transform: scale(1.06);
+    transition:
+      opacity 520ms ease,
+      filter 640ms ease,
+      transform 760ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .morph-layer[data-active] {
+    z-index: 1;
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .morph-layer {
+      filter: none;
+      transform: none;
+      transition: opacity 200ms ease;
+    }
+  }
+}
+
+/* ---- The Home Screen (logo section): an original iOS-style wallpaper, softly blurred colour fields
+   (daylight on the light page, night on the dark page), and frosted tiles like iOS's dock. */
+@layer components {
+  .wallpaper {
+    background:
+      radial-gradient(40% 50% at 12% 18%, #6fb2ff 0%, transparent 70%),
+      radial-gradient(45% 55% at 88% 12%, #a77bff 0%, transparent 70%),
+      radial-gradient(50% 60% at 78% 92%, #ff86b8 0%, transparent 70%),
+      radial-gradient(45% 50% at 18% 88%, #ffc46b 0%, transparent 70%),
+      linear-gradient(160deg, #4f8de8, #8e6ae6 55%, #e07bb0);
+    filter: blur(28px) saturate(1.1);
+  }
+  .dark .wallpaper {
+    background:
+      radial-gradient(40% 50% at 12% 18%, #1d4fa8 0%, transparent 70%),
+      radial-gradient(45% 55% at 88% 12%, #4a2a9a 0%, transparent 70%),
+      radial-gradient(50% 60% at 78% 92%, #8a1f5a 0%, transparent 70%),
+      radial-gradient(45% 50% at 18% 88%, #7a4a12 0%, transparent 70%),
+      linear-gradient(160deg, #0f1d44, #22164e 55%, #3d1236);
+  }
+  .frost-tile {
+    color: #111118;
+    background: rgb(255 255 255 / 0.62);
+    backdrop-filter: blur(24px) saturate(1.6);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.6), 0 10px 30px -14px rgb(0 0 0 / 0.35);
+  }
+  .dark .frost-tile {
+    color: #f2f2f5;
+    background: rgb(28 28 34 / 0.55);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 10px 30px -14px rgb(0 0 0 / 0.6);
+  }
 }

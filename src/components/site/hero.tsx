@@ -14,8 +14,7 @@ export function Hero() {
         <div className="flex flex-col gap-7">
           <h1 className="text-5xl leading-[1.04] font-bold tracking-tight sm:text-6xl lg:text-7xl">Your calm picture puzzle.</h1>
           <p className="max-w-xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
-            Every photo is cut into cards and shuffled. Swap them back until the picture is whole, one quiet puzzle at a
-            time.
+            Each photo is cut into cards and shuffled. Swap them back until the picture is whole.
           </p>
           <PlayButtons />
         </div>

@@ -1,10 +1,26 @@
 import { useEffect, useRef, useState } from "react"
-import { CloudIcon, EyeOffIcon, HourglassIcon, MapIcon, ShrinkIcon, Undo2Icon, ZoomInIcon } from "lucide-react"
+import {
+  CalendarDaysIcon,
+  CloudIcon,
+  EyeOffIcon,
+  GiftIcon,
+  HourglassIcon,
+  ImagePlusIcon,
+  LibraryBigIcon,
+  MapIcon,
+  ShrinkIcon,
+  ShuffleIcon,
+  Undo2Icon,
+  WandSparklesIcon,
+  ZoomInIcon,
+} from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MiniBoard, type BoardPhase } from "@/components/site/mini-board"
+import { PuzzleBoard, usePuzzle } from "@/components/site/puzzle-toy"
 import { GlassPane, Phone, ShapeGlyph, ThemedImage } from "@/components/site/visuals"
 import { cn } from "@/lib/utils"
 
@@ -12,7 +28,7 @@ function Heading({ title, lead, className }: { title: string; lead?: string; cla
   return (
     <div className={cn("flex max-w-2xl flex-col gap-4", className)}>
       <h2 className="text-4xl leading-[1.08] font-bold tracking-tight sm:text-5xl">{title}</h2>
-      {lead && <p className="text-lg leading-relaxed text-muted-foreground">{lead}</p>}
+      {lead && <p className="max-w-xl text-lg leading-relaxed text-muted-foreground">{lead}</p>}
     </div>
   )
 }
@@ -25,7 +41,7 @@ function Heading({ title, lead, className }: { title: string; lead?: string; cla
 const steps = [
   {
     title: "Swap two cards",
-    text: "Tap a card, then the place it belongs. Or drag it there.",
+    text: "Tap a card, then the place it belongs.",
     pane: "pink",
     board: {
       picture: "/covers/venice.webp",
@@ -38,7 +54,7 @@ const steps = [
   },
   {
     title: "Join the pieces",
-    text: "Cards that belong together snap into a group and move as one.",
+    text: "Cards that fit join up and move as one.",
     pane: "blue",
     board: {
       picture: "/covers/lighthouses.webp",
@@ -52,7 +68,7 @@ const steps = [
   },
   {
     title: "Lock the picture in",
-    text: "A card in its true place locks. Finish in fewer moves for more stars.",
+    text: "A card in its place locks in. Fewer moves earn more stars.",
     pane: "gold",
     board: {
       picture: "/covers/sunflowers.webp",
@@ -116,7 +132,7 @@ export function HowItPlays() {
     <section id="how" className="relative scroll-mt-20 py-24">
       <GlassPane color="teal" className="right-[calc(50%-556px-360px)] -bottom-44 hidden h-[400px] w-[360px] rotate-12 md:block" />
       <div className="relative mx-auto flex max-w-6xl flex-col gap-12 px-5">
-        <Heading title="Two taps make a move" lead="Take as long as you like. Every board saves as you go and waits for you to come back." />
+        <Heading title="Two taps make a move" lead="Take your time. Every board saves itself and waits for you." />
         <ol ref={ref} className="grid gap-4 md:grid-cols-3">
           {steps.map((s, i) => (
             <li key={s.title}>
@@ -134,7 +150,7 @@ export function HowItPlays() {
                     {i + 1}
                   </span>
                   <CardTitle className="font-heading text-xl">{s.title}</CardTitle>
-                  <CardDescription className="text-base leading-relaxed">{s.text}</CardDescription>
+                  <CardDescription className="text-base leading-relaxed text-balance">{s.text}</CardDescription>
                 </CardHeader>
               </Card>
             </li>
@@ -147,6 +163,12 @@ export function HowItPlays() {
 
 // ---------------------------------------------------------------------------------------------
 // A new picture every day: the month calendar with the streak card lifted beside it.
+
+const dailyPerks = [
+  { icon: CalendarDaysIcon, text: "This month's pictures are free" },
+  { icon: LibraryBigIcon, text: "Every month back to 2023 waits in the Library" },
+  { icon: GiftIcon, text: "A daily gift that grows with your streak" },
+]
 
 export function Daily() {
   return (
@@ -167,12 +189,17 @@ export function Daily() {
         <div className="flex flex-col gap-6">
           <Heading
             title="A new picture every day"
-            lead="Today's picture waits on Home. Solve it to keep your streak going, and catch up on any day you missed this month."
+            lead="A fresh picture waits on Home each day. Missed one? Catch up any time this month."
           />
-          <ul className="flex flex-col gap-3 text-base text-muted-foreground">
-            <li>Every daily picture of the current month is free.</li>
-            <li>Earlier months stay in the Library, back to January 2023.</li>
-            <li>A daily gift of coins, tickets and hints that grows through each week of your streak.</li>
+          <ul className="flex flex-col gap-3">
+            {dailyPerks.map(({ icon: Icon, text }) => (
+              <li key={text} className="flex items-center gap-3.5 text-base">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-secondary text-secondary-foreground" aria-hidden>
+                  <Icon className="size-[18px]" />
+                </span>
+                {text}
+              </li>
+            ))}
           </ul>
         </div>
       </div>
@@ -193,15 +220,16 @@ const shapes = [
 // A vertical tab list under the text picks the board on the right: each row names the shape, shows
 // its tiling, and says when it opens. Arrow keys move between rows (Base UI Tabs).
 export function Ways() {
+  const [shape, setShape] = useState<(typeof shapes)[number]["id"]>("triangles")
   return (
     <section id="ways" className="relative scroll-mt-20 py-24">
       <GlassPane color="gold" className="-right-40 -bottom-48 hidden h-[640px] w-[480px] rotate-12 md:block" />
       <GlassPane color="gold" className="-right-24 bottom-[14%] h-[340px] w-[280px] rotate-12 md:hidden" />
-      <Tabs defaultValue="triangles" orientation="vertical" className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 md:grid-cols-[0.9fr_1.1fr]">
+      <Tabs value={shape} onValueChange={(v) => setShape(v as typeof shape)} orientation="vertical" className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 md:grid-cols-[0.9fr_1.1fr]">
         <div className="flex flex-col gap-8">
           <Heading
             title="One picture, four ways to cut it"
-            lead="Start with cards. Squares, triangles and hexagons open as you level up, and the trickier shapes pay a little more."
+            lead="Start with cards. New shapes open as you level up, and the trickier ones pay a little more."
           />
           <TabsList aria-label="Board shapes" className="h-auto w-full max-w-md items-stretch gap-1 bg-transparent p-0">
             {shapes.map((s) => (
@@ -223,15 +251,17 @@ export function Ways() {
           </TabsList>
         </div>
         <div>
+          {/* All four boards stay in one frame, so they load together; the chosen one comes into focus. */}
+          <div aria-hidden className="lifted-card relative mx-auto aspect-[3/4] w-full max-w-[460px] overflow-hidden rounded-3xl bg-muted">
+            {shapes.map((s) => (
+              <div key={s.id} data-active={shape === s.id || undefined} className="morph-layer absolute inset-0">
+                <ThemedImage name={`/boards/${s.id}`} alt="" width={900} height={1200} className="size-full object-cover" />
+              </div>
+            ))}
+          </div>
           {shapes.map((s) => (
-            <TabsContent key={s.id} value={s.id}>
-              <ThemedImage
-                name={`/boards/${s.id}`}
-                alt={`The Bora Bora lagoon cut into ${s.label.toLowerCase()}, about half of it in place`}
-                width={900}
-                height={1200}
-                className="lifted-card mx-auto aspect-[3/4] w-full max-w-[460px] rounded-3xl object-cover"
-              />
+            <TabsContent key={s.id} value={s.id} className="sr-only">
+              The Bora Bora lagoon cut into {s.label.toLowerCase()}, about half of it in place.
             </TabsContent>
           ))}
         </div>
@@ -244,22 +274,44 @@ export function Ways() {
 // Painting: every card starts grey and takes its colour back as it locks.
 
 export function Painting() {
+  const board = usePuzzle(4, 4, 11)
   return (
     <section className="relative py-24">
       <GlassPane color="pink" className="top-16 -left-36 h-[520px] w-[440px] -rotate-12 md:hidden" />
       <GlassPane color="teal" className="-bottom-44 -left-24 hidden h-[580px] w-[440px] -rotate-12 md:block" />
       <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 md:grid-cols-2">
-        <div className="mx-auto w-full max-w-[340px]">
-          <Phone name="painting" alt="Monet's chrysanthemums in Painting: a few cards in colour, the rest still grey" />
+        <div className="mx-auto w-full max-w-[380px]">
+          <PuzzleBoard
+            picture="/pictures/monet.webp"
+            cols={4}
+            rows={4}
+            painting
+            {...board}
+            onTap={board.tap}
+            label="A Painting board of Monet's chrysanthemums: tap two cards to swap them"
+          />
         </div>
         <div className="flex flex-col gap-6">
-          <Badge variant="secondary" className="w-fit">
-            Opens at level 8
-          </Badge>
-          <Heading
-            title="Bring the colour back"
-            lead="Turn on Painting and every card starts in black and white. Each one takes its colour back as it locks, and the picture pays a quarter more."
-          />
+          <Heading title="Bring the colour back" lead="With Painting on, every card starts grey and gets its colour back as it locks." />
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="secondary">Opens at level 8</Badge>
+            <Badge variant="outline">Pays 25% more</Badge>
+          </div>
+          <div className="flex flex-col gap-3 pt-2">
+            <div className="flex flex-wrap gap-3">
+              <Button size="xl" onClick={() => board.solve(3)} disabled={board.solved}>
+                <WandSparklesIcon data-icon="inline-start" />
+                Solve three cards
+              </Button>
+              <Button size="xl" variant="secondary" onClick={board.reshuffle}>
+                <ShuffleIcon data-icon="inline-start" />
+                Shuffle
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground" aria-live="polite">
+              {board.solved ? "Every card is back in colour." : `${board.locked} of ${board.total} cards in colour. Or tap two cards to swap them.`}
+            </p>
+          </div>
         </div>
       </div>
     </section>
@@ -270,9 +322,9 @@ export function Painting() {
 // Giant boards: the whole board in tiny cards, and the same board zoomed in with its map.
 
 const giantTools = [
-  { icon: ZoomInIcon, title: "Pinch to zoom", text: "Zoom in on one corner, or out to see the whole picture. It loads at full size, so every detail stays sharp." },
-  { icon: MapIcon, title: "A map of the whole picture", text: "It shows where you are. With the map on, tap a card to see where it belongs." },
-  { icon: ShrinkIcon, title: "Gather", text: "Brings loose cards into view, wherever you are on the board." },
+  { icon: ZoomInIcon, title: "Pinch to zoom", text: "Get close. Every detail stays sharp." },
+  { icon: MapIcon, title: "A map to find your way", text: "See where you are, and where a card belongs." },
+  { icon: ShrinkIcon, title: "Gather", text: "Bring loose cards to where you are." },
 ]
 
 export function Giant() {
@@ -282,7 +334,7 @@ export function Giant() {
       <GlassPane color="blue" className="-right-24 bottom-[22%] h-[360px] w-[280px] rotate-12 md:hidden" />
       <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 md:grid-cols-[0.9fr_1.1fr]">
         <div className="flex flex-col gap-8">
-          <Heading title="Giant boards" lead="Some pictures are made to last an evening: 100 to 300 cards, each one small enough to need a closer look." />
+          <Heading title="Giant boards" lead="For a long, slow evening: 100 to 300 cards in one picture." />
           <ul className="flex flex-col gap-5">
             {giantTools.map((t) => (
               <li key={t.title} className="flex gap-4">
@@ -296,7 +348,10 @@ export function Giant() {
               </li>
             ))}
           </ul>
-          <p className="text-sm text-muted-foreground">Opens at level 10. A giant pack can open it sooner for a few tickets.</p>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted-foreground">
+            <Badge variant="secondary">Opens at level 10</Badge>
+            or sooner, for a few tickets
+          </div>
         </div>
         <div className="relative mx-auto h-[600px] w-full max-w-[520px] sm:h-[760px]">
           <Phone
@@ -346,7 +401,7 @@ export function Pictures() {
       <div className="relative mx-auto flex max-w-6xl flex-col gap-6 px-5">
         <Heading
           title="Thousands of pictures"
-          lead="Wildlife, museum paintings, deep space, cities and quiet places, in more than 150 packs. Every picture is credited to its author."
+          lead="Wildlife, paintings, deep space and quiet places. More than 150 packs, every picture credited."
         />
       </div>
       <div className="marquee relative mt-14 overflow-hidden" role="region" aria-label="Some of the picture packs">
@@ -374,7 +429,28 @@ export function Pictures() {
 // ---------------------------------------------------------------------------------------------
 // Your own photos.
 
+/** Cuts a chosen photo to the board's 3:4 shape in the browser; nothing leaves the page. */
+async function boardPicture(file: File) {
+  const bitmap = await createImageBitmap(file)
+  const h = Math.min(bitmap.height, (bitmap.width * 4) / 3)
+  const w = (h * 3) / 4
+  const canvas = document.createElement("canvas")
+  canvas.width = Math.min(900, Math.round(w))
+  canvas.height = Math.round((canvas.width * 4) / 3)
+  canvas.getContext("2d")?.drawImage(bitmap, (bitmap.width - w) / 2, (bitmap.height - h) / 2, w, h, 0, 0, canvas.width, canvas.height)
+  bitmap.close()
+  return canvas.toDataURL("image/jpeg", 0.88)
+}
+
 export function OwnPhotos() {
+  const board = usePuzzle(3, 3, 5)
+  const [picture, setPicture] = useState("/pictures/corgi.webp")
+  const input = useRef<HTMLInputElement>(null)
+  const choose = async (file?: File) => {
+    if (!file) return
+    setPicture(await boardPicture(file))
+    board.reshuffle()
+  }
   return (
     <section className="relative py-24">
       <GlassPane color="gold" className="-right-32 -bottom-48 hidden h-[640px] w-[460px] -rotate-12 md:block" />
@@ -384,8 +460,28 @@ export function OwnPhotos() {
         <div className="flex flex-col gap-6 md:order-1">
           <Heading
             title="Puzzle your own photos"
-            lead="Add a photo from your library and play it like any other picture. Your photos are private: only your account can see them."
+            lead="Turn a favourite photo into a puzzle. It stays private, just for you."
           />
+          <div className="mt-2 flex items-center gap-6">
+            <PuzzleBoard
+              picture={picture}
+              cols={3}
+              rows={3}
+              {...board}
+              onTap={board.tap}
+              label="A small puzzle of your photo: tap two cards to swap them"
+              className="w-40 shrink-0 sm:w-48"
+            />
+            <div className="flex flex-col items-start gap-3">
+              <p className="text-base font-medium">Try one of yours</p>
+              <Button size="xl" onClick={() => input.current?.click()}>
+                <ImagePlusIcon data-icon="inline-start" />
+                Choose a photo
+              </Button>
+              <p className="text-sm text-muted-foreground">It stays on this page. Nothing is uploaded.</p>
+              <input ref={input} type="file" accept="image/*" className="sr-only" tabIndex={-1} onChange={(e) => choose(e.target.files?.[0])} />
+            </div>
+          </div>
         </div>
         <div className="relative mx-auto w-full max-w-[340px] md:order-2">
           <Phone name="my-puzzles" alt="My Puzzles with five photos: a corgi, a kitten, a lighthouse, a lagoon and macarons" />
@@ -402,13 +498,13 @@ export function Together() {
   const items = [
     {
       title: "Daily and weekly quests",
-      text: "Small goals that change every day and every week, each paying coins or tickets.",
+      text: "Little goals each day and week, with coins and tickets to collect.",
       screen: "quests",
       alt: "The Quests tab with daily quests and one ready to claim",
     },
     {
       title: "Friends and the leaderboard",
-      text: "Add friends with a code and see how your levels compare. The leaderboard is ranked by the experience you earn.",
+      text: "Add friends with a code and see how your levels compare.",
       screen: "friends",
       alt: "The leaderboard with the top three on a podium",
     },
@@ -421,7 +517,7 @@ export function Together() {
       <div className="relative mx-auto flex max-w-6xl flex-col gap-12 px-5">
         <Heading
           title="Something to come back to"
-          lead="Quests for every day and week, a pack for world days like World Food Day, open for a week, and friends to play alongside."
+          lead="Small goals for every day, special packs on world days, and friends to play alongside."
         />
         <div className="grid gap-6 md:grid-cols-2">
           {items.map((it) => (
@@ -447,30 +543,38 @@ export function Together() {
 // Made to be calm: verifiable facts instead of ratings the game does not have yet.
 
 const promises = [
-  { icon: EyeOffIcon, title: "No ad networks, no tracking", text: "Carden talks only to its own servers and to Apple. No third-party ads and no analytics." },
-  { icon: HourglassIcon, title: "Play at your own pace", text: "Every board saves as you go. Close the game mid-puzzle and it opens where you left off." },
-  { icon: Undo2Icon, title: "Help when you want it", text: "Undo is always free. Peek, Hint and Magic are there for a stubborn card." },
-  { icon: CloudIcon, title: "One save, everywhere", text: "Sign in with Apple or with email, and your progress follows you between iPhone and browser." },
+  { icon: EyeOffIcon, title: "No tracking, no ad networks", text: "No analytics and no third-party ads. Just the game." },
+  { icon: HourglassIcon, title: "Play at your own pace", text: "Close it mid-puzzle. It waits for you." },
+  { icon: Undo2Icon, title: "Help when you want it", text: "Undo is always free. Hints help a stubborn card." },
+  { icon: CloudIcon, title: "One save, everywhere", text: "One sign-in for iPhone and the web." },
 ]
 
 export function Calm() {
   return (
-    <section className="relative py-28">
+    <section className="relative py-24">
       <GlassPane color="gold" className="-bottom-56 left-[calc(50%-556px-380px)] hidden h-[420px] w-[380px] rotate-12 md:block" />
-      <div className="relative mx-auto flex max-w-6xl flex-col gap-14 px-5">
-        <Heading title="Made to be calm" />
-        <div className="grid gap-x-16 gap-y-14 sm:grid-cols-2">
-          {promises.map(({ icon: Icon, title, text }) => (
-            <div key={title} className="flex flex-col gap-5 border-t border-border pt-8">
-              <span className="flex size-14 items-center justify-center rounded-2xl bg-secondary text-secondary-foreground" aria-hidden>
-                <Icon className="size-7" />
-              </span>
-              <div className="flex flex-col gap-2">
-                <h3 className="text-2xl font-semibold tracking-tight">{title}</h3>
-                <p className="max-w-md text-lg leading-relaxed text-muted-foreground">{text}</p>
+      <div className="relative mx-auto max-w-6xl px-5">
+        {/* A quiet field of lavender, softly out of focus, with the four promises on frosted glass. */}
+        <div className="relative isolate overflow-hidden rounded-[36px] px-5 py-12 shadow-xl sm:px-12 sm:py-16">
+          <img src="/covers/lavender.webp" alt="" aria-hidden loading="lazy" className="absolute inset-0 -z-10 size-full scale-125 object-cover blur-2xl" />
+          <div aria-hidden className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgb(20_16_40/0.66),rgb(20_16_40/0.22)_55%,rgb(20_16_40/0.4))] dark:bg-[linear-gradient(180deg,rgb(8_6_18/0.75),rgb(8_6_18/0.45)_55%,rgb(8_6_18/0.7))]" />
+          <div className="flex max-w-xl flex-col gap-3">
+            <h2 className="text-4xl leading-[1.08] font-bold tracking-tight text-white sm:text-5xl">Made to be calm</h2>
+            <p className="text-lg leading-relaxed text-white/90">No rush, no noise, nothing watching.</p>
+          </div>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {promises.map(({ icon: Icon, title, text }) => (
+              <div key={title} className="frost-tile flex flex-col gap-4 rounded-3xl p-6">
+                <span className="flex size-11 items-center justify-center rounded-2xl bg-white/80 text-brand dark:bg-white/10" aria-hidden>
+                  <Icon className="size-5" />
+                </span>
+                <div className="flex flex-col gap-1.5">
+                  <h3 className="text-xl leading-snug font-semibold">{title}</h3>
+                  <p className="text-[15px] leading-relaxed text-balance text-black/70 dark:text-white/75">{text}</p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </section>

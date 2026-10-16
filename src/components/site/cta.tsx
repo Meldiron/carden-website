@@ -28,7 +28,7 @@ export function PlayButtons({ className, center = false }: { className?: string;
           </a>
         )}
       </div>
-      <p className="text-sm text-muted-foreground">Free to play. No account needed to start.</p>
+      <p className="text-sm text-muted-foreground">Free to play, no account needed.</p>
     </div>
   )
 }

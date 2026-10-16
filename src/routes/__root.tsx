@@ -38,8 +38,10 @@ export const Route = createRootRoute({
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: "/favicon.png", type: "image/png" },
-      { rel: "icon", href: "/carden-icon.svg", type: "image/svg+xml" },
+      // The tab icon is the flower alone, cropped close on a transparent ground (scripts/export-lotus.mjs,
+      // scripts/render-favicon.sh); the SVG switches to the dark glass on a dark tab bar.
+      { rel: "icon", href: "/favicon.png", type: "image/png", sizes: "64x64" },
+      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
       { rel: "apple-touch-icon", href: "/icons/apple-touch-icon.png" },
       { rel: "manifest", href: "/manifest.json" },
       ...(siteUrl ? [{ rel: "canonical", href: `${siteUrl}/` }] : []),

@@ -26,7 +26,6 @@ PUBLIC = SITE / "public"
 PHONES = {
     "hero": "25_hero",
     "daily": "18_daily_month_grid",
-    "painting": "26_painting",
     "giant-board": "27_giant",
     "giant-zoom": "30_giant_zoom",
     "my-puzzles": "20_my_puzzles",
@@ -38,6 +37,11 @@ PHONES = {
 BOARDS = {"cards": "06_mode_cards", "squares": "07_mode_squares", "triangles": "08_mode_triangles", "hexagons": "09_mode_hexagons"}
 # Cards lifted from a screen: name -> (scene, (l, t, r, b) in capture px).
 CROPS = {"streak": ("31_home_streak", (60, 1485, 1260, 1997))}
+# Pictures the page plays with or shows in widgets: name -> (puzzle id, 3:4 board crop?). From
+# Carden's own Storage, all public domain or CC0: today's daily picture on 16 Oct 2026 (the widgets),
+# Monet's chrysanthemums (the Painting board, the same picture as the Painting capture) and the corgi
+# from My Puzzles (the photo board).
+PICTURES = {"lorikeet": ("daily-2026-10-16", False), "monet": ("p-2f9f0b647f9f", True), "corgi": ("p-62ce633fc70a", True)}
 # Light run: <scene>_light.png -> <name>.webp; dark run: <scene>.png -> <name>-dark.webp.
 THEMES = [("_light", ""), ("", "-dark")]
 # Pack covers for the endless row (no AI packs).
@@ -105,8 +109,17 @@ def main() -> None:
         webp(three_four(Image.open(tmp).convert("RGB")), PUBLIC / "covers" / f"{pid.removeprefix('pack-')}.webp", 480, quality=78)
         tmp.unlink()
 
+    for name, (pid, board) in PICTURES.items():
+        req = urllib.request.Request(f"{APPWRITE}/tablesdb/cjw/tables/puzzles/rows/{pid}", headers={"X-Appwrite-Project": PROJECT})
+        url = json.load(urllib.request.urlopen(req))["imageUrl"].replace("/view?", "/preview?") + "&width=1080"
+        tmp = PUBLIC / "pictures" / f"{name}.jpg"
+        tmp.parent.mkdir(parents=True, exist_ok=True)
+        tmp.write_bytes(urllib.request.urlopen(url, timeout=60).read())
+        im = Image.open(tmp).convert("RGB")
+        webp(three_four(im) if board else im, PUBLIC / "pictures" / f"{name}.webp", 900, quality=82)
+        tmp.unlink()
+
     icons = carden / "web"
-    shutil.copy(icons / "favicon.png", PUBLIC / "favicon.png")
     (PUBLIC / "icons").mkdir(exist_ok=True)
     for f in ["apple-touch-icon.png", "Icon-192.png", "Icon-512.png", "Icon-maskable-192.png", "Icon-maskable-512.png"]:
         shutil.copy(icons / "icons" / f, PUBLIC / "icons" / f)

@@ -30,12 +30,12 @@ export function Appearance() {
           <div className="flex max-w-xl flex-col gap-4">
             <h2 className="text-4xl leading-[1.08] font-bold tracking-tight sm:text-5xl">Light by day, dark by night</h2>
             <p className="text-lg leading-relaxed text-muted-foreground">
-              Carden follows your iPhone's appearance, or keeps the one you choose in Settings. This page works the same way.
+              Carden follows your iPhone, or the look you pick in Settings.
             </p>
           </div>
           <div className="flex flex-col gap-3">
             <span id="appearance-label" className="text-sm font-medium">
-              Theme
+              Try it on this page
             </span>
             <ToggleGroup
               aria-labelledby="appearance-label"
