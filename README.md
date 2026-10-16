@@ -31,7 +31,9 @@ https://www.carden.page (carden.page redirects there; the game is at https://pla
 signed in to an account that can reach the project:
 
 ```sh
-scripts/deploy.sh   # builds with VITE_SITE_URL set, uploads dist/client, waits until it is live
+scripts/deploy.sh             # builds, uploads dist/client to the site, waits until it is live
+scripts/deploy.sh --preview   # the same build as a preview: https://preview.carden.page (site
+                              # carden-website-preview), clear-glass favicon, noindex
 ```
 
 ## Settings

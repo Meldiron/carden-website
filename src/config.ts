@@ -21,6 +21,12 @@ export const appStoreLive = import.meta.env.VITE_APP_STORE_LIVE === "true"
 export const appStoreId = "6821644423"
 
 /**
+ * A preview build (VITE_PREVIEW=true, `scripts/deploy.sh --preview`, https://preview.carden.page): its tab
+ * shows the flower in clear glass instead of colour, and search engines are asked to skip it.
+ */
+export const isPreview = import.meta.env.VITE_PREVIEW === "true"
+
+/**
  * The site's public address: share previews (Open Graph, X) need an absolute image address, and the page
  * names its canonical address. Production is https://www.carden.page (carden.page redirects there);
  * VITE_SITE_URL overrides it, for example for a preview host.

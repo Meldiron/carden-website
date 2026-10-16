@@ -5,13 +5,20 @@
 # deployment is live. Needs the Appwrite CLI signed in to an account with access to the project
 # (`appwrite login`).
 #   scripts/deploy.sh
+#   scripts/deploy.sh --preview   the same build as a preview (clear favicon, noindex) to the site
+#                                 "carden-website-preview" -> https://preview.carden.page
 set -euo pipefail
 cd "$(dirname "$0")/.."
 SITE=carden-website
 URL=https://www.carden.page
+if [ "${1:-}" = --preview ]; then
+  SITE=carden-website-preview
+  URL=https://preview.carden.page
+  export VITE_PREVIEW=true
+fi
 field() { python3 -c "import json,sys; print(json.load(sys.stdin).get('$1', ''))"; }
 
-VITE_SITE_URL=$URL pnpm build
+pnpm build
 [ -f dist/client/index.html ] || { echo "dist/client/index.html missing" >&2; exit 1; }
 ID=$(appwrite sites create-deployment --site-id "$SITE" --code dist/client --activate --json | field '$id')
 echo "deployment $ID"

@@ -8,6 +8,7 @@
 // public/brand/tints/<tint>-<light|dark>.svg   the Tinted look in a few tint colours
 // public/brand/layers/<theme>/<piece>.svg      each glass piece alone, for the exploded view
 // public/favicon.svg                           the flower alone, cropped close, light and dark glass in one file
+// public/favicon-preview.svg                   the same in clear glass, for preview builds (VITE_PREVIEW)
 // src/components/site/lotus-geometry.ts        the pieces' outlines with their anchors and handles
 import { createRequire } from "node:module"
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs"
@@ -66,6 +67,17 @@ write(
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="12.5 13.4 75 75">` +
     `<style>.d{display:none}@media (prefers-color-scheme:dark){.l{display:none}.d{display:inline}}</style>` +
     `<g class="l">${flower("light")}</g><g class="d">${flower("dark")}</g></svg>\n`,
+)
+
+// The preview site's favicon: the flower in the icon's clear glass, so a preview tab never passes for the
+// real site. Dark glass on light tab bars (the Tinted look with a graphite tint), white glass on dark
+// ones (the Clear dark look).
+write(
+  out("..", "favicon-preview.svg"),
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="12.5 13.4 75 75">` +
+    `<style>.d{display:none}@media (prefers-color-scheme:dark){.l{display:none}.d{display:inline}}</style>` +
+    `<g class="l">${inner(brand.svg(brand.FINAL, "tintL", { background: false, tint: "#3a3a46" }))}</g>` +
+    `<g class="d">${inner(brand.svg(brand.FINAL, "clearD", { background: false }))}</g></svg>\n`,
 )
 
 // The outlines, read from the drawing's LOTUS paths and placed as the icon places them

@@ -3,7 +3,7 @@ import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
 import { ThemeProvider } from "@/components/theme-provider"
 import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { appStoreId, appStoreLive, siteUrl } from "@/config"
+import { appStoreId, appStoreLive, isPreview, siteUrl } from "@/config"
 import appCss from "../styles.css?url"
 
 const title = "Carden: Your calm picture puzzle"
@@ -33,6 +33,7 @@ export const Route = createRootRoute({
       { name: "twitter:title", content: title },
       { name: "twitter:description", content: description },
       { name: "twitter:image", content: image },
+      ...(isPreview ? [{ name: "robots", content: "noindex" }] : []),
       // Safari's Smart App Banner, once the app can be downloaded.
       ...(appStoreLive ? [{ name: "apple-itunes-app", content: `app-id=${appStoreId}` }] : []),
     ],
@@ -40,8 +41,9 @@ export const Route = createRootRoute({
       { rel: "stylesheet", href: appCss },
       // The tab icon is the flower alone, cropped close on a transparent ground (scripts/export-lotus.mjs,
       // scripts/render-favicon.sh); the SVG switches to the dark glass on a dark tab bar.
-      { rel: "icon", href: "/favicon.png", type: "image/png", sizes: "64x64" },
-      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+      // A preview build shows the flower in clear glass, so its tab never passes for the real site.
+      { rel: "icon", href: isPreview ? "/favicon-preview.png" : "/favicon.png", type: "image/png", sizes: "64x64" },
+      { rel: "icon", href: isPreview ? "/favicon-preview.svg" : "/favicon.svg", type: "image/svg+xml" },
       { rel: "apple-touch-icon", href: "/icons/apple-touch-icon.png" },
       { rel: "manifest", href: "/manifest.json" },
       ...(siteUrl ? [{ rel: "canonical", href: `${siteUrl}/` }] : []),
