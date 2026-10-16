@@ -8,7 +8,7 @@ export const links = {
   appStore: "https://apps.apple.com/app/id6821644423",
   privacy: "https://github.com/Meldiron/carden/blob/main/docs/privacy-policy.md",
   terms: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
-  supportEmail: "support@almostapps.eu",
+  supportEmail: "contact@almostapps.eu",
 } as const
 
 /**
