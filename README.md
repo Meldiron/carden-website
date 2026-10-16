@@ -91,9 +91,15 @@ and writes the pieces' outlines, anchors and handles to `src/components/site/lot
 node scripts/export-lotus.mjs
 ```
 
-The playable boards (Painting, and your own photo, which is cut in the browser and never uploaded)
-are `src/components/site/puzzle-toy.tsx`; their pictures, and the lorikeet in the Daily widgets, are
-catalogue pictures in `public/pictures` (public domain or CC0), fetched by `prepare-assets.py`.
+The playable boards (Painting and the giant board) are `src/components/site/puzzle-toy.tsx`, the streak
+card is `streak.tsx` (its gifts follow the app's `Economy.dailyRewards`), and the photo picker and widgets
+are drawn in HTML. Their pictures are catalogue pictures in `public/pictures`, fetched by
+`prepare-assets.py`; the widgets and boards use only public-domain or CC0 pictures.
+
+**Picture credits.** Many pack covers are CC BY or CC BY-SA, so the page credits every catalogue picture
+it shows (footer, Picture credits). `prepare-assets.py` writes the list
+(`src/components/site/picture-credits.json`) from the catalogue's author and licence fields; run it again
+whenever a picture on the page changes.
 
 The step boards in "Two taps make a move" (`src/components/site/mini-board.tsx`, `.mb-*` in `src/styles.css`)
 are drawn in CSS the way the game draws its board, from a pack cover.
