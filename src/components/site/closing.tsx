@@ -3,6 +3,7 @@ import { CheckIcon } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Separator } from "@/components/ui/separator"
 import { PlayButtons } from "@/components/site/cta"
+import { PictureCredits } from "@/components/site/credits"
 import { Logo } from "@/components/site/header"
 import { GlassPane } from "@/components/site/visuals"
 import { appStoreLive, links } from "@/config"
@@ -144,6 +145,11 @@ export function Footer() {
                       </a>
                     </li>
                   ))}
+                  {col.title === "Help" && (
+                    <li>
+                      <PictureCredits className="cursor-pointer text-sm text-muted-foreground transition-colors hover:text-foreground" />
+                    </li>
+                  )}
                 </ul>
               </nav>
             ))}

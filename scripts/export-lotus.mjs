@@ -33,7 +33,7 @@ const looks = { default: "light", dark: "dark", "clear-light": "clearL", "clear-
 for (const [name, mode] of Object.entries(looks)) write(out("looks", `${name}.svg`), brand.svg(brand.FINAL, mode, { size: 512 }))
 
 // Tinted in a few of the colours a person can pick on their Home Screen.
-const tints = { cobalt: "#5B78E6", rose: "#E0567F", amber: "#D9952B", sage: "#4E9F7E", plum: "#8D63C9" }
+const tints = { cobalt: "#5B78E6", rose: "#E0567F", amber: "#D9952B", sage: "#4E9F7E", plum: "#8D63C9", graphite: "#6B7280" }
 for (const [name, tint] of Object.entries(tints)) {
   write(out("tints", `${name}-light.svg`), brand.svg(brand.FINAL, "tintL", { size: 512, tint }))
   write(out("tints", `${name}-dark.svg`), brand.svg(brand.FINAL, "tintD", { size: 512, tint }))

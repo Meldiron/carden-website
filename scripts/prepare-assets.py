@@ -14,7 +14,7 @@ committed, so the site builds without the app repo.
 """
 from __future__ import annotations
 
-import argparse, json, re, shutil, sys, urllib.request
+import argparse, json, re, shutil, sys, urllib.parse, urllib.request
 from pathlib import Path
 
 from PIL import Image
@@ -37,11 +37,19 @@ PHONES = {
 BOARDS = {"cards": "06_mode_cards", "squares": "07_mode_squares", "triangles": "08_mode_triangles", "hexagons": "09_mode_hexagons"}
 # Cards lifted from a screen: name -> (scene, (l, t, r, b) in capture px).
 CROPS = {"streak": ("31_home_streak", (60, 1485, 1260, 1997))}
-# Pictures the page plays with or shows in widgets: name -> (puzzle id, 3:4 board crop?). From
-# Carden's own Storage, all public domain or CC0: today's daily picture on 16 Oct 2026 (the widgets),
-# Monet's chrysanthemums (the Painting board, the same picture as the Painting capture) and the corgi
-# from My Puzzles (the photo board).
-PICTURES = {"lorikeet": ("daily-2026-10-16", False), "monet": ("p-2f9f0b647f9f", True), "corgi": ("p-62ce633fc70a", True)}
+# Pictures the page plays with or shows: name -> (puzzle id, 3:4 crop?). From Carden's own Storage,
+# all public domain or CC0: three daily pictures (the widgets; 16 Oct, 26 Sep and 11 Sep 2026), Monet's chrysanthemums
+# (the Painting board, the same picture as the Painting capture), the Hölderlin Tower (the giant board, as in
+# the giant capture) and three of the photos in the My
+# Puzzles capture (the photo prints).
+PICTURES = {
+    "lorikeet": ("daily-2026-10-16", False), "barn": ("daily-2026-09-26", False), "primrose": ("daily-2026-09-11", False),
+    "monet": ("p-2f9f0b647f9f", True), "holderlin": ("p-86961eb4f439", True),
+    "corgi": ("p-62ce633fc70a", True), "kitten": ("p-de0b799403de", True), "lighthouse": ("p-3b694ec057be", True),
+}
+# The main catalogue pictures inside the app screens (store capture test: hero, shape boards, giant
+# board, My Puzzles); credited with the rest.
+IN_SCREENS = ["pack-tulip-fields-08", "p-00df45e91273", "p-86961eb4f439", "pack-pastries-09", "pack-islands-09"]
 # Light run: <scene>_light.png -> <name>.webp; dark run: <scene>.png -> <name>-dark.webp.
 THEMES = [("_light", ""), ("", "-dark")]
 # Pack covers for the endless row (no AI packs).
@@ -66,6 +74,56 @@ def three_four(im: Image.Image) -> Image.Image:
     w = min(im.width, round(h * 3 / 4))
     left, top = (im.width - w) // 2, (im.height - h) // 2
     return im.crop((left, top, left + w, top + h))
+
+
+def _get(path: str, queries: list | None = None) -> dict:
+    q = "&".join("queries[]=" + urllib.parse.quote(json.dumps(x)) for x in (queries or []))
+    req = urllib.request.Request(f"{APPWRITE}{path}{'?' + q if q else ''}", headers={"X-Appwrite-Project": PROJECT})
+    return json.load(urllib.request.urlopen(req))
+
+
+def _licence_url(source: str) -> str | None:
+    m = re.search(r"\b(CC0|CC BY(?:-SA)?)\b\s*([\d.]+)?", source)
+    if not m:
+        return None
+    kind, version = m.group(1).removeprefix("CC ").replace("CC0", "CC0"), m.group(2)
+    if kind == "CC0":
+        return "https://creativecommons.org/publicdomain/zero/1.0/"
+    return f"https://creativecommons.org/licenses/{kind.lower()}/{version or '2.0'}/"
+
+
+def _page_url(url: str) -> str:
+    """Wikimedia upload addresses lead to the file's page, where its licence is stated."""
+    m = re.search(r"upload\.wikimedia\.org/wikipedia/commons/(?:thumb/)?[0-9a-f]/[0-9a-f]{2}/([^/?]+)", url)
+    return f"https://commons.wikimedia.org/wiki/File:{m.group(1)}" if m else url
+
+
+def write_credits() -> None:
+    """Every catalogue picture the page shows, with its author and licence (src/components/site/picture-credits.json)."""
+    rows = []
+    for pid in COVERS:
+        src = _get(f"/tablesdb/cjw/tables/packs/rows/{pid}")["coverSourceUrl"]
+        found = _get("/tablesdb/cjw/tables/puzzles/rows", [{"method": "equal", "attribute": "sourceUrl", "values": [src]}, {"method": "limit", "values": [1]}])["rows"]
+        rows += found[:1]
+    for pid in [p for p, _ in PICTURES.values()] + IN_SCREENS:
+        rows.append(_get(f"/tablesdb/cjw/tables/puzzles/rows/{pid}"))
+    credits, seen = [], set()
+    for r in rows:
+        if r["$id"] in seen:
+            continue
+        seen.add(r["$id"])
+        source = r.get("source") or ""
+        author = (r.get("author") or "").strip()
+        author = author.split("Minor edits")[0].strip()
+        if author.lower().startswith("public domain") or len(author) > 80 or author.lower() == "unknown":
+            author = "Unknown author"
+        credits.append({
+            "title": r.get("title"), "author": author, "licence": source.split(", ", 1)[-1].replace("CC CC0", "CC0"), "licenceUrl": _licence_url(source),
+            "where": source.split(", ", 1)[0], "url": _page_url(r.get("sourceUrl") or ""),
+        })
+    out = SITE / "src" / "components" / "site" / "picture-credits.json"
+    out.write_text(json.dumps(sorted(credits, key=lambda c: c["title"].lower()), indent=2, ensure_ascii=False) + "\n")
+    print(f"{out.relative_to(SITE)}  {len(credits)} pictures")
 
 
 def main() -> None:
@@ -118,6 +176,8 @@ def main() -> None:
         im = Image.open(tmp).convert("RGB")
         webp(three_four(im) if board else im, PUBLIC / "pictures" / f"{name}.webp", 900, quality=82)
         tmp.unlink()
+
+    write_credits()
 
     icons = carden / "web"
     (PUBLIC / "icons").mkdir(exist_ok=True)

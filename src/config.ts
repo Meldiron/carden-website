@@ -1,7 +1,7 @@
 /** Where the site sends people. Change these in one place. */
 export const links = {
   /** The web game. */
-  play: "https://carden.appwrite.network",
+  play: "https://play.carden.page",
   /** The public TestFlight beta, while the iPhone app is not on the App Store yet. */
   beta: "https://testflight.apple.com/join/7nPCfg6A",
   /** The App Store product page (Apple id 6821644423). Live once the app is released. */
@@ -20,5 +20,9 @@ export const appStoreLive = import.meta.env.VITE_APP_STORE_LIVE === "true"
 
 export const appStoreId = "6821644423"
 
-/** The site's public address, for the share image and canonical links (set VITE_SITE_URL when deployed). */
-export const siteUrl = (import.meta.env.VITE_SITE_URL as string | undefined)?.replace(/\/$/, "") ?? ""
+/**
+ * The site's public address: share previews (Open Graph, X) need an absolute image address, and the page
+ * names its canonical address. Production is https://www.carden.page (carden.page redirects there);
+ * VITE_SITE_URL overrides it, for example for a preview host.
+ */
+export const siteUrl = ((import.meta.env.VITE_SITE_URL as string | undefined) || "https://www.carden.page").replace(/\/$/, "")

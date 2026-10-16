@@ -1,6 +1,6 @@
 # Carden website
 
-The homepage of [Carden](https://carden.appwrite.network), the calm picture puzzle: swap cards until the
+The homepage of [Carden](https://www.carden.page), the calm picture puzzle: swap cards until the
 picture is whole. A single page, prerendered to static HTML.
 
 ![Carden: Your calm picture puzzle](public/og.png)
@@ -27,7 +27,7 @@ pnpm lint && pnpm typecheck
 ## Deploy
 
 The site lives on Appwrite Sites as `carden-website` in the Carden project (`appwrite.config.json`), at
-https://carden-website.appwrite.network. With the [Appwrite CLI](https://appwrite.io/docs/tooling/command-line/installation)
+https://www.carden.page (carden.page redirects there; the game is at https://play.carden.page). With the [Appwrite CLI](https://appwrite.io/docs/tooling/command-line/installation)
 signed in to an account that can reach the project:
 
 ```sh
@@ -40,7 +40,7 @@ Set at build time (for example `VITE_SITE_URL=https://example.com pnpm build`):
 
 | Variable | Purpose |
 | --- | --- |
-| `VITE_SITE_URL` | The site's public address. Share previews (Open Graph, X) need an absolute image address, and the page gets a canonical link. |
+| `VITE_SITE_URL` | The site's public address, `https://www.carden.page` when unset. Share previews (Open Graph, X) need an absolute image address, and the page gets a canonical link. |
 | `VITE_APP_STORE_LIVE` | `true` once Carden is on the App Store: the beta link becomes Apple's official "Download on the App Store" badge, the footer adds Apple's trademark line, and Safari on iPhone shows the Smart App Banner. Leave it off until then: Apple's badge may only point to an app that can be downloaded. |
 
 Links (the web game, the TestFlight beta, the App Store page, privacy policy, terms, support email) live in
@@ -91,9 +91,15 @@ and writes the pieces' outlines, anchors and handles to `src/components/site/lot
 node scripts/export-lotus.mjs
 ```
 
-The playable boards (Painting, and your own photo, which is cut in the browser and never uploaded)
-are `src/components/site/puzzle-toy.tsx`; their pictures, and the lorikeet in the Daily widgets, are
-catalogue pictures in `public/pictures` (public domain or CC0), fetched by `prepare-assets.py`.
+The playable boards (Painting and the giant board) are `src/components/site/puzzle-toy.tsx`, the streak
+card is `streak.tsx` (its gifts follow the app's `Economy.dailyRewards`), and the photo picker and widgets
+are drawn in HTML. Their pictures are catalogue pictures in `public/pictures`, fetched by
+`prepare-assets.py`; the widgets and boards use only public-domain or CC0 pictures.
+
+**Picture credits.** Many pack covers are CC BY or CC BY-SA, so the page credits every catalogue picture
+it shows (footer, Picture credits). `prepare-assets.py` writes the list
+(`src/components/site/picture-credits.json`) from the catalogue's author and licence fields; run it again
+whenever a picture on the page changes.
 
 The step boards in "Two taps make a move" (`src/components/site/mini-board.tsx`, `.mb-*` in `src/styles.css`)
 are drawn in CSS the way the game draws its board, from a pack cover.

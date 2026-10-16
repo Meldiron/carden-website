@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 # Build the site and deploy it to Appwrite Sites: site "carden-website" in the Carden project
-# (appwrite.config.json) -> https://carden-website.appwrite.network. Waits until the new
+# (appwrite.config.json) -> https://www.carden.page (carden.page redirects there; the site's first
+# address, carden-website.appwrite.network, serves it too). Waits until the new
 # deployment is live. Needs the Appwrite CLI signed in to an account with access to the project
 # (`appwrite login`).
 #   scripts/deploy.sh
 set -euo pipefail
 cd "$(dirname "$0")/.."
 SITE=carden-website
-URL=https://carden-website.appwrite.network
+URL=https://www.carden.page
 field() { python3 -c "import json,sys; print(json.load(sys.stdin).get('$1', ''))"; }
 
 VITE_SITE_URL=$URL pnpm build
