@@ -71,6 +71,19 @@
   --glass-alpha: 0.62;
   --glass-blend: multiply;
   --glass-filter: none;
+
+  /* Play together: the host in the accent, the other players by seat in the app's PlayerColors
+     (orange, purple, teal, pink; lib/core/theme/tokens.dart), with the text on them. */
+  --player-0: #2f4fbf;
+  --player-1: #c2410c;
+  --player-2: #7e22ce;
+  --player-3: #0f766e;
+  --player-4: #be185d;
+  --on-player-0: #ffffff;
+  --on-player-1: #ffffff;
+  --on-player-2: #ffffff;
+  --on-player-3: #ffffff;
+  --on-player-4: #ffffff;
 }
 
 .dark {
@@ -99,6 +112,18 @@
   --glass-alpha: 0.9;
   --glass-blend: normal;
   --glass-filter: brightness(0.38) saturate(1.4);
+
+  /* The app's dark PlayerColors; the initials on them in near-black (the app's onDark), the host's too. */
+  --player-0: #7c9aff;
+  --player-1: #fb923c;
+  --player-2: #c084fc;
+  --player-3: #2dd4bf;
+  --player-4: #f472b6;
+  --on-player-0: #111118;
+  --on-player-1: #111118;
+  --on-player-2: #111118;
+  --on-player-3: #111118;
+  --on-player-4: #111118;
 }
 
 @layer base {

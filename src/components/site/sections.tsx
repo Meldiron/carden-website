@@ -7,16 +7,13 @@ import {
   CloudIcon,
   EyeOffIcon,
   GiftIcon,
-  GlobeIcon,
   HourglassIcon,
   LibraryBigIcon,
-  Link2Icon,
   MapIcon,
   PlayIcon,
   RotateCcwIcon,
   ShrinkIcon,
   ShuffleIcon,
-  UsersIcon,
   WandSparklesIcon,
   ZoomInIcon,
 } from "lucide-react"
@@ -26,6 +23,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MiniBoard, type BoardPhase } from "@/components/site/mini-board"
+import { PlayTogetherDemo } from "@/components/site/play-together"
 import { giantStart, paintingStart, PuzzleBoard, usePuzzle } from "@/components/site/puzzle-toy"
 import { StreakCard } from "@/components/site/streak"
 import { GlassPane, Phone, ShapeGlyph, ThemedImage } from "@/components/site/visuals"
@@ -174,15 +172,8 @@ export function HowItPlays() {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Play together: one board, up to five players, live. The shared board comes from the store capture
-// scene with scripted players (`together`), with two parts of it lifted towards the text: another
-// player's card in their colour with their initial (`coop-card`) and the player list (`players`).
-
-const togetherPerks = [
-  { icon: Link2Icon, text: "Share a link from any board" },
-  { icon: UsersIcon, text: "Up to five players, each in their own colour" },
-  { icon: GlobeIcon, text: "Friends without the app join in the browser" },
-]
+// Play together: one big board, up to five players, live. The player list and the cursors on the board
+// can be played with (play-together.tsx).
 
 export function PlayTogether() {
   return (
@@ -190,37 +181,12 @@ export function PlayTogether() {
       {/* Ends behind the phone of the daily section (its left column). */}
       <GlassPane color="pink" className="top-[calc(100%-80px)] right-[calc(50%+250px)] h-[420px] w-[360px] rotate-10 hidden lg:block" />
       <GlassPane color="pink" className="bottom-[-40px] left-[calc(50%-170px)] h-[380px] w-[340px] -rotate-9 md:hidden" />
-      <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 md:grid-cols-2">
-        <div className="flex flex-col gap-6">
-          <Heading title="Play together" lead="Send a link and solve the same picture with friends, live. Everyone moves cards at once." />
-          <ul className="flex flex-col gap-3">
-            {togetherPerks.map(({ icon: Icon, text }) => (
-              <li key={text} className="flex items-center gap-3.5 text-base">
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-secondary text-secondary-foreground" aria-hidden>
-                  <Icon className="size-[18px]" />
-                </span>
-                {text}
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="relative mx-auto w-full max-w-[340px]">
-          <Phone name="together" alt="A picture played by three friends at once: the players button at the top, and a card another player is holding, outlined in their colour" />
-          <ThemedImage
-            name="/cards/coop-card"
-            alt=""
-            width={320}
-            height={425}
-            className="lifted-card absolute top-[34%] -left-3 w-[30%] -rotate-6 rounded-[3px] sm:-left-20 md:-left-6 lg:-left-20"
-          />
-          <ThemedImage
-            name="/cards/players"
-            alt="The player list: each friend's avatar in their own colour, the host marked"
-            width={1200}
-            height={582}
-            className="lifted-card absolute bottom-10 -left-3 w-[104%] max-w-none rounded-[14px] sm:-left-16 sm:w-[108%]"
-          />
-        </div>
+      <div className="relative mx-auto flex max-w-6xl flex-col gap-12 px-5">
+        <Heading
+          title="Play together"
+          lead="Send a link from any board and solve the picture with up to four friends, live. Friends without the app join in the browser."
+        />
+        <PlayTogetherDemo />
       </div>
     </section>
   )

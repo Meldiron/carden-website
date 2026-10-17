@@ -32,13 +32,12 @@ PHONES = {
     "quests": "13_quests",
     "friends": "22_social_league",
     "home": "31_home_streak",
-    "together": "32_coop_board",  # Play together: a shared board with scripted players
 }
-# Boards cut four ways (the same lagoon), cropped from game captures.
-BOARDS = {"cards": "06_mode_cards", "squares": "07_mode_squares", "triangles": "08_mode_triangles", "hexagons": "09_mode_hexagons"}
-# Cards lifted from a screen: name -> (scene, (l, t, r, b) in capture px). Play together's two (another
-# player's card, the player list) take their boxes from the store slides (COOP_* in Carden's
-# tools/store/compose_glass.py), added in main() once the Carden repo is on the path.
+# Boards cut four ways (the same lagoon), cropped from game captures; and Play together's shared board
+# (Cards 7x7 before the friends' moves: the page draws their live cursors and marks on it).
+BOARDS = {"cards": "06_mode_cards", "squares": "07_mode_squares", "triangles": "08_mode_triangles", "hexagons": "09_mode_hexagons",
+          "together": "34_coop_clean"}
+# Cards lifted from a screen: name -> (scene, (l, t, r, b) in capture px, or "rect:<name>" the capture recorded).
 CROPS = {"streak": ("31_home_streak", (60, 1485, 1260, 1997))}
 # Pictures the page plays with or shows: name -> (puzzle id, 3:4 crop?). From Carden's own Storage,
 # all public domain or CC0: three daily pictures (the widgets; 16 Oct, 26 Sep and 11 Sep 2026), Monet's chrysanthemums
@@ -141,9 +140,6 @@ def main() -> None:
     import compose_screenshots as cs  # the store slides' phone frame and status bar
     import compose_glass as cg  # the store slides' crop boxes
 
-    CROPS["coop-card"] = (cg.COOP_BOARD, cg.COOP_HELD)
-    CROPS["players"] = (cg.COOP_PLAYERS, cg.COOP_LIST)
-
     def load(name: str) -> Image.Image:
         p = raw / f"{name}.png"
         if not p.exists():
@@ -162,6 +158,11 @@ def main() -> None:
         for name, (scene, box) in CROPS.items():
             # cg.crop_box: a fixed box, or a rectangle the capture recorded for this theme ("rect:<name>").
             webp(load(scene + cap_suffix).crop(cg.crop_box(scene + cap_suffix, box)), PUBLIC / "cards" / f"{name}{out_suffix}.webp", 1200, quality=88)
+
+    # Play together's board: its size and the cards locked in either theme's capture (no cursor holds one).
+    locked = sorted({int(s) for k in ("34_coop_locked", "34_coop_locked_light") for s in boards.get(k, [])})
+    (SITE / "src" / "components" / "site" / "together-board.json").write_text(json.dumps({"cols": 7, "rows": 7, "locked": locked}) + "\n")
+    print(f"src/components/site/together-board.json  {len(locked)} locked cards")
 
     for pid in [] if a.no_covers else COVERS:
         req = urllib.request.Request(f"{APPWRITE}/tablesdb/cjw/tables/packs/rows/{pid}", headers={"X-Appwrite-Project": PROJECT})

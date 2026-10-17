@@ -80,10 +80,9 @@ Every app screen on the page is one of the App Store captures (the Carden repo's
 site and the dark run's capture of the same scene on the dark site (`ThemedImage`, `<name>.webp` and
 `<name>-dark.webp`). `scripts/prepare-assets.py` frames them and writes `public/screens`, `public/boards`,
 `public/cards` and `public/covers` (it needs the Carden app repo next to this one, and its Python
-environment). Play together's board (`screens/together`) and its two lifted cards (`cards/coop-card`, another
-player's card; `cards/players`, the player list) come from the capture scene with scripted players
-(`32_coop_board`, `33_coop_players`), cut with the store slides' boxes (`COOP_*` in the Carden repo's
-`tools/store/compose_glass.py`):
+environment). Play together's board (`boards/together`) is the capture scene with scripted players before the
+friends' moves (`34_coop_clean`, Cards 7x7); the script also writes which of its cards are locked
+(`src/components/site/together-board.json`), so the page's live cursors never hold one:
 
 ```sh
 ../card-jigsaw-world/.venv/bin/python scripts/prepare-assets.py              # both themes and the covers
@@ -102,6 +101,13 @@ The playable boards (Painting and the giant board) are `src/components/site/puzz
 card is `streak.tsx` (its gifts follow the app's `Economy.dailyRewards`), and the photo picker and widgets
 are drawn in HTML. Their pictures are catalogue pictures in `public/pictures`, fetched by
 `prepare-assets.py`; the widgets and boards use only public-domain or CC0 pictures.
+
+Play together (`play-together.tsx`) is the app's player list in HTML (Invite seats a new player in the next
+free seat's colour, Remove takes one out, both announced to screen readers) over the shared board, with a
+cursor for every guest that drifts to another card now and then and sometimes holds it (still with reduced
+motion). The player colours are the app's `PlayerColors` (`--player-*` in `src/styles.css`); the avatars
+are the app's own, exported from Flutter's Material Icons font by `scripts/export-avatars.py` into
+`src/components/site/avatars.ts`.
 
 **Picture credits.** Many pack covers are CC BY or CC BY-SA, so the page credits every catalogue picture
 it shows (footer, Picture credits). `prepare-assets.py` writes the list
