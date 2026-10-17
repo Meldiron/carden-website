@@ -229,7 +229,7 @@ export function PlayTogetherDemo() {
       release(d)
       e.marks.delete(d.piece)
       bump()
-      if (isHere(d.guest)) schedule(d.guest, between(600, 2400))
+      if (isHere(d.guest)) schedule(d.guest, between(900, 2700))
     }
 
     /** The dragged card lands: the two cards swap places and both carry the player's mark for a moment. */
@@ -259,7 +259,9 @@ export function PlayTogetherDemo() {
         other.animate([{ transform: place(d.to) }, { transform: place(d.from) }], { duration: SETTLE_MS, easing: "cubic-bezier(0.3, 0.7, 0.2, 1)" }).onfinish = settled
       } else settled()
       window.setTimeout(bump, MARK_MS + 30)
-      if (isHere(d.guest)) schedule(d.guest, between(600, 2400))
+      // The next pick waits until this swap's marks have faded, so a player never holds a new card
+      // while their last swap still shows.
+      if (isHere(d.guest)) schedule(d.guest, between(MARK_MS + 100, 2700))
     }
 
     const startDrag = (id: number): boolean => {
