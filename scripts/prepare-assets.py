@@ -38,7 +38,7 @@ PHONES = {
 BOARDS = {"cards": "06_mode_cards", "squares": "07_mode_squares", "triangles": "08_mode_triangles", "hexagons": "09_mode_hexagons",
           "together": "34_coop_clean"}
 # Cards lifted from a screen: name -> (scene, (l, t, r, b) in capture px, or "rect:<name>" the capture recorded).
-CROPS = {"streak": ("31_home_streak", (60, 1485, 1260, 1997))}
+CROPS = {"streak": ("31_home_streak", (60, 1539, 1260, 2052))}
 # Pictures the page plays with or shows: name -> (puzzle id, 3:4 crop?). From Carden's own Storage,
 # all public domain or CC0: three daily pictures (the widgets; 16 Oct, 26 Sep and 11 Sep 2026), Monet's chrysanthemums
 # (the Painting board, the same picture as the Painting capture), the Hölderlin Tower (the giant board, as in
