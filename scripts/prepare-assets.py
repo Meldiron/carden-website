@@ -32,10 +32,13 @@ PHONES = {
     "quests": "13_quests",
     "friends": "22_social_league",
     "home": "31_home_streak",
+    "together": "32_coop_board",  # Play together: a shared board with scripted players
 }
 # Boards cut four ways (the same lagoon), cropped from game captures.
 BOARDS = {"cards": "06_mode_cards", "squares": "07_mode_squares", "triangles": "08_mode_triangles", "hexagons": "09_mode_hexagons"}
-# Cards lifted from a screen: name -> (scene, (l, t, r, b) in capture px).
+# Cards lifted from a screen: name -> (scene, (l, t, r, b) in capture px). Play together's two (another
+# player's card, the player list) take their boxes from the store slides (COOP_* in Carden's
+# tools/store/compose_glass.py), added in main() once the Carden repo is on the path.
 CROPS = {"streak": ("31_home_streak", (60, 1485, 1260, 1997))}
 # Pictures the page plays with or shows: name -> (puzzle id, 3:4 crop?). From Carden's own Storage,
 # all public domain or CC0: three daily pictures (the widgets; 16 Oct, 26 Sep and 11 Sep 2026), Monet's chrysanthemums
@@ -136,6 +139,10 @@ def main() -> None:
     raw = carden / "store" / "raw"
     sys.path.insert(0, str(carden / "tools" / "store"))
     import compose_screenshots as cs  # the store slides' phone frame and status bar
+    import compose_glass as cg  # the store slides' crop boxes
+
+    CROPS["coop-card"] = (cg.COOP_BOARD, cg.COOP_HELD)
+    CROPS["players"] = (cg.COOP_PLAYERS, cg.COOP_LIST)
 
     def load(name: str) -> Image.Image:
         p = raw / f"{name}.png"

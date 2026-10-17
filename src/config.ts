@@ -7,7 +7,8 @@ export const links = {
   /** The App Store product page (Apple id 6821644423). Live once the app is released. */
   appStore: "https://apps.apple.com/app/id6821644423",
   privacy: "https://github.com/Meldiron/carden/blob/main/docs/privacy-policy.md",
-  terms: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  /** Carden's own terms of use (they keep Apple's standard licence agreement), as in the app and the App Store listing. */
+  terms: "https://github.com/Meldiron/carden/blob/main/docs/terms-of-use.md",
   supportEmail: "contact@almostapps.eu",
 } as const
 

@@ -7,8 +7,11 @@ import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger 
 import { links } from "@/config"
 import { cn } from "@/lib/utils"
 
+// `wide`: in the top bar only from 1024 px (at 768 px five links push Play now off the bar); the menu
+// sheet always lists every section.
 export const sections = [
   { href: "#how", label: "How it plays" },
+  { href: "#together", label: "Play together", wide: true },
   { href: "#ways", label: "Ways to play" },
   { href: "#pictures", label: "Pictures" },
   { href: "#questions", label: "Questions" },
@@ -30,7 +33,7 @@ export function Header() {
         <Logo />
         <nav aria-label="Sections" className="ml-4 hidden items-center gap-1 md:flex">
           {sections.map((s) => (
-            <a key={s.href} href={s.href} className={buttonVariants({ variant: "ghost" })}>
+            <a key={s.href} href={s.href} className={cn(buttonVariants({ variant: "ghost" }), s.wide && "hidden lg:inline-flex")}>
               {s.label}
             </a>
           ))}

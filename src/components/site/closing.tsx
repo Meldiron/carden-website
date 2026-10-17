@@ -25,6 +25,10 @@ const questions: { q: string; a: string; list?: string[]; note?: string }[] = [
     }`,
   },
   {
+    q: "Can I play with friends?",
+    a: "Yes. Tap Play together in a board's pause menu and share the link. Up to five people play the same picture at once, in the app or in a browser.",
+  },
+  {
     q: "Where do the pictures come from?",
     a: "Mostly public-domain and Creative Commons photos and paintings, each credited to its author. A few packs, marked AI, hold generated pictures.",
   },

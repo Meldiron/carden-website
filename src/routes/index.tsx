@@ -5,7 +5,7 @@ import { Faq, FinalCta, Footer } from "@/components/site/closing"
 import { Header } from "@/components/site/header"
 import { Hero } from "@/components/site/hero"
 import { Lotus } from "@/components/site/lotus"
-import { Calm, Daily, Giant, HowItPlays, OwnPhotos, Painting, Pictures, Together, Ways } from "@/components/site/sections"
+import { Calm, ComeBack, Daily, Giant, HowItPlays, OwnPhotos, Painting, Pictures, PlayTogether, Ways } from "@/components/site/sections"
 
 export const Route = createFileRoute("/")({ component: Home })
 
@@ -19,13 +19,14 @@ function Home() {
       <main id="main" className="page">
         <Hero />
         <HowItPlays />
+        <PlayTogether />
         <Daily />
         <Ways />
         <Painting />
         <Giant />
         <Pictures />
         <OwnPhotos />
-        <Together />
+        <ComeBack />
         <Lotus />
         <Calm />
         <Appearance />

@@ -7,14 +7,16 @@ import {
   CloudIcon,
   EyeOffIcon,
   GiftIcon,
+  GlobeIcon,
   HourglassIcon,
   LibraryBigIcon,
+  Link2Icon,
   MapIcon,
   PlayIcon,
   RotateCcwIcon,
   ShrinkIcon,
   ShuffleIcon,
-  Undo2Icon,
+  UsersIcon,
   WandSparklesIcon,
   ZoomInIcon,
 } from "lucide-react"
@@ -127,7 +129,8 @@ export function HowItPlays() {
   const { phases, played, play } = useBoardPlay(steps.length)
   return (
     <section id="how" className="relative scroll-mt-20 py-24">
-      <GlassPane color="gold" className="top-[calc(100%-70px)] right-[calc(50%+250px)] h-[420px] w-[360px] rotate-8 hidden lg:block" />
+      {/* Ends behind the shared board's phone in Play together (the right column there). */}
+      <GlassPane color="gold" className="top-[calc(100%-70px)] left-[calc(50%+250px)] h-[420px] w-[360px] -rotate-8 hidden lg:block" />
       <div className="relative mx-auto flex max-w-6xl flex-col gap-12 px-5">
         <Heading title="Two taps make a move" lead="Take your time. Every board saves itself and waits for you." />
         <ol className="grid gap-4 md:grid-cols-3">
@@ -165,6 +168,59 @@ export function HowItPlays() {
             )
           })}
         </ol>
+      </div>
+    </section>
+  )
+}
+
+// ---------------------------------------------------------------------------------------------
+// Play together: one board, up to five players, live. The shared board comes from the store capture
+// scene with scripted players (`together`), with two parts of it lifted towards the text: another
+// player's card in their colour with their initial (`coop-card`) and the player list (`players`).
+
+const togetherPerks = [
+  { icon: Link2Icon, text: "Share a link from any board" },
+  { icon: UsersIcon, text: "Up to five players, each in their own colour" },
+  { icon: GlobeIcon, text: "Friends without the app join in the browser" },
+]
+
+export function PlayTogether() {
+  return (
+    <section id="together" className="relative scroll-mt-20 py-24">
+      {/* Ends behind the phone of the daily section (its left column). */}
+      <GlassPane color="pink" className="top-[calc(100%-80px)] right-[calc(50%+250px)] h-[420px] w-[360px] rotate-10 hidden lg:block" />
+      <GlassPane color="pink" className="bottom-[-40px] left-[calc(50%-170px)] h-[380px] w-[340px] -rotate-9 md:hidden" />
+      <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 md:grid-cols-2">
+        <div className="flex flex-col gap-6">
+          <Heading title="Play together" lead="Send a link and solve the same picture with friends, live. Everyone moves cards at once." />
+          <ul className="flex flex-col gap-3">
+            {togetherPerks.map(({ icon: Icon, text }) => (
+              <li key={text} className="flex items-center gap-3.5 text-base">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-secondary text-secondary-foreground" aria-hidden>
+                  <Icon className="size-[18px]" />
+                </span>
+                {text}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="relative mx-auto w-full max-w-[340px]">
+          <Phone name="together" alt="A picture played by three friends at once: the players button at the top, and a card another player is holding, outlined in their colour" />
+          <ThemedImage
+            name="/cards/coop-card"
+            alt=""
+            width={280}
+            height={380}
+            className="lifted-card absolute top-[34%] -left-3 w-[30%] -rotate-6 rounded-2xl sm:-left-20 md:-left-6 lg:-left-20"
+          />
+          <ThemedImage
+            name="/cards/players"
+            alt="The player list: each friend's avatar in their own colour, the host marked"
+            width={1200}
+            height={620}
+            className="lifted-card absolute bottom-10 -left-3 w-[104%] max-w-none rounded-[22px] sm:-left-16 sm:w-[108%]"
+          />
+        </div>
       </div>
     </section>
   )
@@ -401,7 +457,7 @@ export function Giant() {
       <GlassPane color="gold" className="bottom-[-40px] left-[calc(50%-170px)] h-[200px] w-[340px] -rotate-6 rounded-[44px] md:hidden" />
       <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 md:grid-cols-[0.9fr_1.1fr]">
         <div className="flex flex-col gap-8">
-          <Heading title="Giant boards" lead="For a long, slow evening: 100 to 300 cards in one picture." />
+          <Heading title="Giant boards" lead="For a long, slow evening: hundreds of cards in one picture." />
           <ul className="flex flex-col gap-5">
             {giantTools.map((t) => (
               <li key={t.title} className="flex gap-4">
@@ -587,7 +643,7 @@ export function OwnPhotos() {
 // ---------------------------------------------------------------------------------------------
 // Quests, events and friends.
 
-export function Together() {
+export function ComeBack() {
   const items = [
     {
       title: "Daily and weekly quests",
@@ -597,7 +653,7 @@ export function Together() {
     },
     {
       title: "Friends and the leaderboard",
-      text: "Add friends with a code and see how your levels compare.",
+      text: "Add friends with a code, send them a small gift each day and see how your levels compare.",
       screen: "friends",
       alt: "The leaderboard with the top three on a podium",
     },
@@ -633,9 +689,9 @@ export function Together() {
 // Made to be calm: verifiable facts instead of ratings the game does not have yet.
 
 const promises = [
-  { icon: EyeOffIcon, title: "No tracking, no ad networks", text: "No analytics and no third-party ads. Just the game." },
+  { icon: EyeOffIcon, title: "No tracking, no ad networks", text: "No third-party ads or analytics. Just the game." },
   { icon: HourglassIcon, title: "Play at your own pace", text: "Close it mid-puzzle. It waits for you." },
-  { icon: Undo2Icon, title: "Help when you want it", text: "Undo is always free. Hints help a stubborn card." },
+  { icon: ShuffleIcon, title: "Help when you want it", text: "Shuffle is always free. Hints help a stubborn card." },
   { icon: CloudIcon, title: "One save, everywhere", text: "One sign-in for iPhone and the web." },
 ]
 

@@ -80,7 +80,10 @@ Every app screen on the page is one of the App Store captures (the Carden repo's
 site and the dark run's capture of the same scene on the dark site (`ThemedImage`, `<name>.webp` and
 `<name>-dark.webp`). `scripts/prepare-assets.py` frames them and writes `public/screens`, `public/boards`,
 `public/cards` and `public/covers` (it needs the Carden app repo next to this one, and its Python
-environment):
+environment). Play together's board (`screens/together`) and its two lifted cards (`cards/coop-card`, another
+player's card; `cards/players`, the player list) come from the capture scene with scripted players
+(`32_coop_board`, `33_coop_players`), cut with the store slides' boxes (`COOP_*` in the Carden repo's
+`tools/store/compose_glass.py`):
 
 ```sh
 ../card-jigsaw-world/.venv/bin/python scripts/prepare-assets.py              # both themes and the covers
