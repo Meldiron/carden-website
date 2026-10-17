@@ -3,13 +3,13 @@ import { StarIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
-// A small playable board, drawn the way the game draws its board (.toy-* in styles.css): tap a card,
-// then another, and they swap; a card in its true place locks; cards that belong together but sit
-// in the wrong spot join into a group with one blue edge. In Painting, every card that is not locked
-// is grey and takes its colour back as it locks.
+// A small showcase board, drawn the way the game draws its board (.toy-* in styles.css), moved by its own
+// buttons (Solve, Shuffle) and never by tapping its cards (owner, 2026-10-17: these are showcases, not games):
+// a card in its true place locks; cards that belong together but sit in the wrong spot join into a group with
+// one blue edge. In Painting, every card that is not locked is grey and takes its colour back as it locks.
 
 /** A seeded random source, so a designed start is the same on the prerendered page and in the browser. */
-function seeded(seed: number) {
+export function seeded(seed: number) {
   return () => {
     seed = (seed + 0x6d2b79f5) | 0
     let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
@@ -19,20 +19,20 @@ function seeded(seed: number) {
 }
 
 /** The cell to the right of / below `c` when it holds the piece that belongs there next to `order[c]`. */
-function joinedRight(order: number[], cols: number, c: number) {
+export function joinedRight(order: number[], cols: number, c: number) {
   const p = order[c]
   return c % cols < cols - 1 && p % cols < cols - 1 && order[c + 1] === p + 1 && p !== c
 }
-function joinedBelow(order: number[], cols: number, c: number) {
+export function joinedBelow(order: number[], cols: number, c: number) {
   const p = order[c]
   return c + cols < order.length && order[c + cols] === p + cols && p !== c
 }
-function joinCount(order: number[], cols: number) {
+export function joinCount(order: number[], cols: number) {
   return order.reduce((n, _, c) => n + (joinedRight(order, cols, c) ? 1 : 0) + (joinedBelow(order, cols, c) ? 1 : 0), 0)
 }
 
 /** Fills the free cells so that no extra card is in place and no extra pair is joined. */
-function arrange(n: number, cols: number, fixed: Record<number, number>, random: () => number) {
+export function arrange(n: number, cols: number, fixed: Record<number, number>, random: () => number) {
   const free = Array.from({ length: n }, (_, c) => c).filter((c) => !(c in fixed))
   const pieces = Array.from({ length: n }, (_, p) => p).filter((p) => !Object.values(fixed).includes(p))
   const base = Array.from({ length: n }, (_, c) => fixed[c] ?? -1)
@@ -73,7 +73,6 @@ export function giantStart() {
 export function usePuzzle(cols: number, rows: number, start: () => number[]) {
   const n = cols * rows
   const [order, setOrder] = useState(start)
-  const [selected, setSelected] = useState<number | null>(null)
   const [moves, setMoves] = useState(0)
   const timers = useRef<number[]>([])
   const stop = () => {
@@ -82,27 +81,9 @@ export function usePuzzle(cols: number, rows: number, start: () => number[]) {
   }
   useEffect(() => stop, [])
 
-  const tap = useCallback(
-    (cell: number) => {
-      if (order[cell] === cell) return
-      if (selected === null) return setSelected(cell)
-      if (selected === cell) return setSelected(null)
-      const a = selected
-      setOrder((o) => {
-        const q = [...o]
-        ;[q[a], q[cell]] = [q[cell], q[a]]
-        return q
-      })
-      setSelected(null)
-      setMoves((m) => m + 1)
-    },
-    [order, selected],
-  )
-
   /** The game's shuffle: no card in its place and no two cards joined. */
   const reshuffle = useCallback(() => {
     stop()
-    setSelected(null)
     setMoves(0)
     setOrder(arrange(n, cols, {}, Math.random))
   }, [n, cols])
@@ -115,7 +96,6 @@ export function usePuzzle(cols: number, rows: number, start: () => number[]) {
    */
   const solve = useCallback((count = 3, pace = 170) => {
     stop()
-    setSelected(null)
     const swap = (o: number[], a: number, b: number) => {
       const q = [...o]
       ;[q[a], q[b]] = [q[b], q[a]]
@@ -198,7 +178,65 @@ export function usePuzzle(cols: number, rows: number, start: () => number[]) {
   }, [order, cols, n])
 
   const locked = order.filter((p, c) => p === c).length
-  return { order, selected, tap, reshuffle, solve, locked, total: n, solved: locked === n, moves }
+  return { order, reshuffle, solve, locked, total: n, solved: locked === n, moves }
+}
+
+/** A card that closes against a group-mate on some side (a group in the wrong spot). */
+export function isGrouped(order: number[], cols: number, c: number) {
+  const x = c % cols
+  const y = Math.floor(c / cols)
+  return joinedRight(order, cols, c) || (x > 0 && joinedRight(order, cols, c - 1)) || joinedBelow(order, cols, c) || (y > 0 && joinedBelow(order, cols, c - cols))
+}
+
+/**
+ * One card's face as the game draws it: its part of the picture, and either a frame (a loose card) or, for a
+ * card in a group, the group's blue edge along its outer sides only, with no gutter where it closes against a
+ * group-mate. A card in its place shows neither (.toy-piece[data-locked] in styles.css).
+ */
+export function PieceFace({ order, cols, rows, cell, picture }: { order: number[]; cols: number; rows: number; cell: number; picture: string }) {
+  const p = order[cell]
+  const x = cell % cols
+  const y = Math.floor(cell / cols)
+  const locked = cell === p
+  // Sides that close against a group-mate: no gutter there, and the group's blue edge runs only along the
+  // outer sides.
+  const right = joinedRight(order, cols, cell)
+  const left = x > 0 && joinedRight(order, cols, cell - 1)
+  const down = joinedBelow(order, cols, cell)
+  const up = y > 0 && joinedBelow(order, cols, cell - cols)
+  const grouped = right || left || down || up
+  const g = (fused: boolean) => (fused ? "0px" : "var(--g)")
+  const r = (a: boolean, b: boolean) => (a || b ? "0px" : "var(--r)")
+  const inset = `${g(up)} ${g(right)} ${g(down)} ${g(left)}`
+  const radius = `${r(up, left)} ${r(up, right)} ${r(down, right)} ${r(down, left)}`
+  return (
+    <>
+      <span
+        className="toy-img"
+        style={{
+          backgroundImage: `url(${picture})`,
+          backgroundSize: `${cols * 100}% ${rows * 100}%`,
+          backgroundPosition: `${((p % cols) / (cols - 1)) * 100}% ${(Math.floor(p / cols) / (rows - 1)) * 100}%`,
+          ...(grouped && !locked ? { clipPath: `inset(${inset} round ${radius})` } : {}),
+        }}
+      />
+      {grouped && !locked ? (
+        <span
+          className="toy-edge"
+          style={{
+            top: g(up),
+            right: g(right),
+            bottom: g(down),
+            left: g(left),
+            borderRadius: radius,
+            borderWidth: ["var(--edge)", "var(--edge)", "var(--edge)", "var(--edge)"].map((w, i) => ([up, right, down, left][i] ? "0px" : w)).join(" "),
+          }}
+        />
+      ) : (
+        <span className="toy-frame" />
+      )}
+    </>
+  )
 }
 
 export function PuzzleBoard({
@@ -206,8 +244,6 @@ export function PuzzleBoard({
   cols,
   rows,
   order,
-  selected,
-  onTap,
   painting = false,
   dense = false,
   solved,
@@ -219,8 +255,6 @@ export function PuzzleBoard({
   cols: number
   rows: number
   order: number[]
-  selected: number | null
-  onTap: (cell: number) => void
   painting?: boolean
   /** Many small cards: thinner gutters, frames and edges. */
   dense?: boolean
@@ -232,7 +266,7 @@ export function PuzzleBoard({
   const cellOf = new Map(order.map((p, c) => [p, c]))
   return (
     <div
-      role="group"
+      role="img"
       aria-label={label}
       data-painting={painting || undefined}
       data-dense={dense || undefined}
@@ -244,58 +278,19 @@ export function PuzzleBoard({
         const x = c % cols
         const y = Math.floor(c / cols)
         const locked = c === p
-        // Sides that close against a group-mate: no gutter there, and the group's blue edge runs
-        // only along the outer sides.
-        const right = joinedRight(order, cols, c)
-        const left = x > 0 && joinedRight(order, cols, c - 1)
-        const down = joinedBelow(order, cols, c)
-        const up = y > 0 && joinedBelow(order, cols, c - cols)
-        const grouped = right || left || down || up
-        const g = (fused: boolean) => (fused ? "0px" : "var(--g)")
-        const r = (a: boolean, b: boolean) => (a || b ? "0px" : "var(--r)")
-        const inset = `${g(up)} ${g(right)} ${g(down)} ${g(left)}`
-        const radius = `${r(up, left)} ${r(up, right)} ${r(down, right)} ${r(down, left)}`
+        const grouped = isGrouped(order, cols, c)
         return (
-          <button
+          <span
             key={p}
-            type="button"
             className="toy-piece"
             data-locked={locked || undefined}
             data-grouped={grouped || undefined}
-            data-selected={selected === c || undefined}
-            aria-pressed={selected === c}
-            aria-label={locked ? `Card ${p + 1}, in its place` : grouped ? `Card ${p + 1}, joined to its neighbour` : `Card ${p + 1}`}
-            disabled={locked}
-            onClick={() => onTap(c)}
             style={{ width: `${100 / cols}%`, height: `${100 / rows}%`, transform: `translate(${x * 100}%, ${y * 100}%)` }}
           >
             <span className="toy-lift">
-              <span
-                className="toy-img"
-                style={{
-                  backgroundImage: `url(${picture})`,
-                  backgroundSize: `${cols * 100}% ${rows * 100}%`,
-                  backgroundPosition: `${((p % cols) / (cols - 1)) * 100}% ${(Math.floor(p / cols) / (rows - 1)) * 100}%`,
-                  ...(grouped && !locked ? { clipPath: `inset(${inset} round ${radius})` } : {}),
-                }}
-              />
-              {grouped && !locked ? (
-                <span
-                  className="toy-edge"
-                  style={{
-                    top: g(up),
-                    right: g(right),
-                    bottom: g(down),
-                    left: g(left),
-                    borderRadius: radius,
-                    borderWidth: ["var(--edge)", "var(--edge)", "var(--edge)", "var(--edge)"].map((w, i) => ([up, right, down, left][i] ? "0px" : w)).join(" "),
-                  }}
-                />
-              ) : (
-                <span className="toy-frame" />
-              )}
+              <PieceFace order={order} cols={cols} rows={rows} cell={c} picture={picture} />
             </span>
-          </button>
+          </span>
         )
       })}
       {solved && (

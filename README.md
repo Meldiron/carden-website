@@ -80,9 +80,9 @@ Every app screen on the page is one of the App Store captures (the Carden repo's
 site and the dark run's capture of the same scene on the dark site (`ThemedImage`, `<name>.webp` and
 `<name>-dark.webp`). `scripts/prepare-assets.py` frames them and writes `public/screens`, `public/boards`,
 `public/cards` and `public/covers` (it needs the Carden app repo next to this one, and its Python
-environment). Play together's board (`boards/together`) is the capture scene with scripted players before the
-friends' moves (`34_coop_clean`, Cards 7x7); the script also writes which of its cards are locked
-(`src/components/site/together-board.json`), so the page's live cursors never hold one:
+environment). For Play together's board the script writes which cards the store scene has locked
+(`34_coop_clean`, Cards 7x7, into `src/components/site/together-board.json`) and fetches its picture
+(`public/pictures/lagoon.webp`):
 
 ```sh
 ../card-jigsaw-world/.venv/bin/python scripts/prepare-assets.py              # both themes and the covers
@@ -97,15 +97,21 @@ and writes the pieces' outlines, anchors and handles to `src/components/site/lot
 node scripts/export-lotus.mjs
 ```
 
-The playable boards (Painting and the giant board) are `src/components/site/puzzle-toy.tsx`, the streak
+The showcase boards (Painting and the giant board) are `src/components/site/puzzle-toy.tsx`: they move only
+through their Solve and Shuffle buttons, never by tapping a card (they are showcases, not games). The streak
 card is `streak.tsx` (its gifts follow the app's `Economy.dailyRewards`), and the photo picker and widgets
 are drawn in HTML. Their pictures are catalogue pictures in `public/pictures`, fetched by
 `prepare-assets.py`; the widgets and boards use only public-domain or CC0 pictures.
 
 Play together (`play-together.tsx`) is the app's player list in HTML (Invite seats a new player in the next
-free seat's colour, Remove takes one out, both announced to screen readers) over the shared board, with a
-cursor for every guest that drifts to another card now and then and sometimes holds it (still with reduced
-motion). The player colours are the app's `PlayerColors` (`--player-*` in `src/styles.css`); the avatars
+free seat's colour, Remove takes one out, both announced to screen readers) beside the shared board, built
+from card tiles like the showcase boards, with the store scene's locked areas fused and still. Every guest
+plays on their own loop (their own pause and drag speed): a loose card lifts, glides along a gentle arc to
+another loose card's place and the two swap, marked the way the app marks another player's card (an outline
+in their colour and their initial). No move puts a card in its place or joins a pair, so the board stays
+mid-game forever; several guests drag at once, never the same cards. Removing a guest mid-drag glides their
+card back. With reduced motion nothing moves (each guest's mark sits on one card), and nothing moves while
+the board is off screen. The player colours are the app's `PlayerColors` (`--player-*` in `src/styles.css`); the avatars
 are the app's own, exported from Flutter's Material Icons font by `scripts/export-avatars.py` into
 `src/components/site/avatars.ts`.
 

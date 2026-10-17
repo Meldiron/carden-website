@@ -377,8 +377,7 @@ export function Painting() {
             rows={4}
             painting
             {...board}
-            onTap={board.tap}
-            label="A Painting board of Monet's chrysanthemums: tap two cards to swap them"
+            label="A Painting board of Monet's chrysanthemums, a few cards back in colour"
           />
         </div>
         <div className="flex flex-col gap-6">
@@ -399,7 +398,7 @@ export function Painting() {
               </Button>
             </div>
             <p className="text-sm text-muted-foreground" aria-live="polite">
-              {board.solved ? "Every card is back in colour." : `${board.locked} of ${board.total} cards in colour. Or tap two cards to swap them.`}
+              {board.solved ? "Every card is back in colour." : `${board.locked} of ${board.total} cards in colour.`}
             </p>
           </div>
         </div>
@@ -455,7 +454,7 @@ export function Giant() {
               </Button>
             </div>
             <p className="text-sm text-muted-foreground" aria-live="polite">
-              {board.solved ? "The whole picture is in place." : `${board.locked} of ${board.total} cards in place. Or tap two cards to swap them.`}
+              {board.solved ? "The whole picture is in place." : `${board.locked} of ${board.total} cards in place.`}
             </p>
           </div>
         </div>
@@ -466,8 +465,7 @@ export function Giant() {
             rows={10}
             dense
             {...board}
-            onTap={board.tap}
-            label="A giant board of the Hölderlin Tower in Tübingen, a hundred cards: tap two cards to swap them"
+            label="A giant board of the Hölderlin Tower in Tübingen, a hundred cards, a corner already in place"
           />
           <Phone
             name="giant-zoom"

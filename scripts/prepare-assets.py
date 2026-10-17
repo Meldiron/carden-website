@@ -33,21 +33,20 @@ PHONES = {
     "friends": "22_social_league",
     "home": "31_home_streak",
 }
-# Boards cut four ways (the same lagoon), cropped from game captures; and Play together's shared board
-# (Cards 7x7 before the friends' moves: the page draws their live cursors and marks on it).
-BOARDS = {"cards": "06_mode_cards", "squares": "07_mode_squares", "triangles": "08_mode_triangles", "hexagons": "09_mode_hexagons",
-          "together": "34_coop_clean"}
+# Boards cut four ways (the same lagoon), cropped from game captures.
+BOARDS = {"cards": "06_mode_cards", "squares": "07_mode_squares", "triangles": "08_mode_triangles", "hexagons": "09_mode_hexagons"}
 # Cards lifted from a screen: name -> (scene, (l, t, r, b) in capture px, or "rect:<name>" the capture recorded).
 CROPS = {"streak": ("31_home_streak", (60, 1539, 1260, 2052))}
 # Pictures the page plays with or shows: name -> (puzzle id, 3:4 crop?). From Carden's own Storage,
 # all public domain or CC0: three daily pictures (the widgets; 16 Oct, 26 Sep and 11 Sep 2026), Monet's chrysanthemums
 # (the Painting board, the same picture as the Painting capture), the Hölderlin Tower (the giant board, as in
-# the giant capture) and three of the photos in the My
-# Puzzles capture (the photo prints).
+# the giant capture), three of the photos in the My Puzzles capture (the photo prints) and the Bora Bora
+# lagoon (Play together's shared board, the store scene's picture).
 PICTURES = {
     "lorikeet": ("daily-2026-10-16", False), "barn": ("daily-2026-09-26", False), "primrose": ("daily-2026-09-11", False),
     "monet": ("p-2f9f0b647f9f", True), "holderlin": ("p-86961eb4f439", True),
     "corgi": ("p-62ce633fc70a", True), "kitten": ("p-de0b799403de", True), "lighthouse": ("p-3b694ec057be", True),
+    "lagoon": ("p-00df45e91273", True),
 }
 # The main catalogue pictures inside the app screens (store capture test: hero, shape boards, giant
 # board, My Puzzles); credited with the rest.

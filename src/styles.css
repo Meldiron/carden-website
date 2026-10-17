@@ -653,35 +653,17 @@
     --mb-ink: #ffffff;
     box-shadow: 0 30px 60px -28px rgb(0 0 0 / 0.8);
   }
+  /* Showcases, not games (owner, 2026-10-17): the cards move only through the page's own buttons. */
   .toy-piece {
     position: absolute;
     left: 0;
     top: 0;
-    padding: 0;
-    border: 0;
-    background: none;
-    cursor: pointer;
+    pointer-events: none;
     transition: transform 340ms cubic-bezier(0.3, 0.7, 0.2, 1);
-  }
-  .toy-piece:disabled {
-    cursor: default;
-  }
-  .toy-piece:focus-visible {
-    outline: none;
-  }
-  .toy-piece:focus-visible .toy-frame {
-    box-shadow: 0 0 0 3px var(--ring);
-  }
-  .toy-piece[data-selected] {
-    z-index: 3;
   }
   .toy-lift {
     position: absolute;
     inset: 0;
-    transition: transform 200ms ease;
-  }
-  .toy-piece[data-selected] .toy-lift {
-    transform: scale(1.06);
   }
   .toy-img {
     position: absolute;
@@ -729,9 +711,6 @@
   .toy-piece[data-grouped] .toy-img {
     transition: clip-path 380ms ease, filter 700ms ease;
   }
-  .toy-piece[data-selected] .toy-frame {
-    box-shadow: 0 0 0 2px var(--mb-ink), 0 10px 22px rgb(0 0 0 / 0.3);
-  }
   .toy-done {
     position: absolute;
     z-index: 4;
@@ -762,6 +741,58 @@
     .toy-done {
       animation: none;
     }
+  }
+}
+
+/* ---- Play together's shared board (play-together.tsx): the toy board's cards at 7 x 7, moved by the page's
+   own animations (no transform transition), a dragged card lifted with a shadow, and another player's card
+   marked as the app marks it: an outline in their colour just outside the card and their initial on it. */
+@layer components {
+  .coop-board {
+    --g: 2px;
+    --r: 6px;
+    --edge: 2px;
+    container-type: inline-size;
+    border-radius: 18px;
+  }
+  .coop-piece {
+    cursor: default;
+    transition: none;
+    will-change: transform;
+  }
+  .coop-piece[data-drag] {
+    z-index: 10;
+  }
+  .coop-piece[data-settle] {
+    z-index: 6;
+  }
+  /* Locked cards read as one piece of the picture: their tiles overlap by half a pixel, so no seam shows. */
+  .coop-piece[data-locked] .toy-img {
+    inset: -0.5px;
+  }
+  .coop-piece[data-drag] .toy-frame {
+    box-shadow:
+      inset 0 0 0 2px var(--mb-frame),
+      0 0 0 1px var(--mb-edge),
+      0 14px 26px rgb(0 0 0 / 0.38);
+  }
+  .coop-piece[data-drag] .toy-img {
+    filter: none;
+  }
+  .coop-mark {
+    position: absolute;
+    inset: calc(var(--g) - 2.5px);
+    border: 2.5px solid;
+    border-radius: calc(var(--r) + 2px);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .coop-initial {
+    width: max(16px, 5.2cqw);
+    height: max(16px, 5.2cqw);
+    font-size: max(9.5px, 2.9cqw);
   }
 }
 
