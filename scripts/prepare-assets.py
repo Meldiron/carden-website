@@ -160,7 +160,8 @@ def main() -> None:
             l, t, w, h = boards.get(scene + cap_suffix) or boards[scene]
             webp(load(scene + cap_suffix).crop((round(l), round(t), round(l + w), round(t + h))), PUBLIC / "boards" / f"{name}{out_suffix}.webp", 900)
         for name, (scene, box) in CROPS.items():
-            webp(load(scene + cap_suffix).crop(box), PUBLIC / "cards" / f"{name}{out_suffix}.webp", 1200, quality=88)
+            # cg.crop_box: a fixed box, or a rectangle the capture recorded for this theme ("rect:<name>").
+            webp(load(scene + cap_suffix).crop(cg.crop_box(scene + cap_suffix, box)), PUBLIC / "cards" / f"{name}{out_suffix}.webp", 1200, quality=88)
 
     for pid in [] if a.no_covers else COVERS:
         req = urllib.request.Request(f"{APPWRITE}/tablesdb/cjw/tables/packs/rows/{pid}", headers={"X-Appwrite-Project": PROJECT})

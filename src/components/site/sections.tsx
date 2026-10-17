@@ -209,16 +209,16 @@ export function PlayTogether() {
           <ThemedImage
             name="/cards/coop-card"
             alt=""
-            width={280}
-            height={380}
-            className="lifted-card absolute top-[34%] -left-3 w-[30%] -rotate-6 rounded-2xl sm:-left-20 md:-left-6 lg:-left-20"
+            width={320}
+            height={425}
+            className="lifted-card absolute top-[34%] -left-3 w-[30%] -rotate-6 rounded-[3px] sm:-left-20 md:-left-6 lg:-left-20"
           />
           <ThemedImage
             name="/cards/players"
             alt="The player list: each friend's avatar in their own colour, the host marked"
             width={1200}
-            height={620}
-            className="lifted-card absolute bottom-10 -left-3 w-[104%] max-w-none rounded-[22px] sm:-left-16 sm:w-[108%]"
+            height={582}
+            className="lifted-card absolute bottom-10 -left-3 w-[104%] max-w-none rounded-[14px] sm:-left-16 sm:w-[108%]"
           />
         </div>
       </div>
@@ -367,16 +367,18 @@ export function Ways() {
           </TabsList>
         </div>
         <div>
-          {/* All four boards stay in one frame, so they load together; only the chosen one shows. */}
-          <div aria-hidden className="lifted-card relative mx-auto aspect-[3/4] w-full max-w-[460px] rounded-3xl">
-            <div className="absolute inset-0 overflow-hidden rounded-3xl bg-muted">
+          {/* All four boards stay in one frame, so they load together; only the chosen one shows. Boards
+              have the shape the game deals (Cards 3:4, the others about square since 2.0.0), so each
+              is shown whole on the game's own board colour (#F6F6F8, dark #0D0D10), never cropped. */}
+          <div aria-hidden className="lifted-card relative mx-auto aspect-square w-full max-w-[460px] rounded-3xl">
+            <div className="absolute inset-0 overflow-hidden rounded-3xl bg-[#f6f6f8] dark:bg-[#0d0d10]">
               {shapes.map((s) => (
                 <div
                   key={s.id}
                   ref={layerRef(s.id)}
-                  className={cn("absolute inset-0", s.id === shape ? "z-[2]" : s.id === under ? "z-[1]" : "opacity-0")}
+                  className={cn("absolute inset-0 bg-[#f6f6f8] p-5 dark:bg-[#0d0d10]", s.id === shape ? "z-[2]" : s.id === under ? "z-[1]" : "opacity-0")}
                 >
-                  <ThemedImage name={`/boards/${s.id}`} alt="" width={900} height={1200} className="size-full object-cover" />
+                  <ThemedImage name={`/boards/${s.id}`} alt="" width={900} height={900} className="size-full object-contain" />
                 </div>
               ))}
               <span ref={sheen} className="shape-sheen" />
@@ -384,7 +386,7 @@ export function Ways() {
           </div>
           {shapes.map((s) => (
             <TabsContent key={s.id} value={s.id} className="sr-only">
-              The Bora Bora lagoon cut into {s.label.toLowerCase()}, about half of it in place.
+              The Bora Bora lagoon cut into {s.label.toLowerCase()}, some of it already in place.
             </TabsContent>
           ))}
         </div>
