@@ -35,8 +35,10 @@ const START_ORDER = arrange(N, COLS, { ...Object.fromEntries(boardInfo.locked.ma
 // A moved card keeps its player's mark this long. The app keeps it 2.5 s; the page's players move faster than
 // people do, so a shorter mark keeps five of them readable.
 const MARK_MS = 1200
-// The displaced card's glide to the dragged card's old place: a little longer the farther it goes.
-const settleMs = (cells: number) => Math.min(640, 300 + 70 * cells)
+// The displaced card snaps to the dragged card's old place (owner, 2026-10-18): not instant, but very fast,
+// barely longer the farther it goes, and quick off the mark.
+const settleMs = (cells: number) => Math.min(220, 130 + 15 * cells)
+const SNAP = "cubic-bezier(0.2, 0.9, 0.25, 1)"
 
 type Guest = {
   id: number
@@ -294,7 +296,7 @@ export function PlayTogetherDemo() {
       const other = pieceEls.current.get(d.other)
       if (other) {
         const cells = Math.hypot(at(d.to)[0] - at(d.from)[0], at(d.to)[1] - at(d.from)[1]) / 100
-        other.animate([{ transform: place(d.to) }, { transform: place(d.from) }], { duration: settleMs(cells), easing: "cubic-bezier(0.3, 0.7, 0.2, 1)" }).onfinish = settled
+        other.animate([{ transform: place(d.to) }, { transform: place(d.from) }], { duration: settleMs(cells), easing: SNAP }).onfinish = settled
       } else settled()
       window.setTimeout(bump, MARK_MS + 30)
       // The next pick waits until this swap's marks have faded, so a player never holds a new card
