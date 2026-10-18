@@ -12,9 +12,11 @@ import { cn } from "@/lib/utils"
 // from card tiles like the page's other boards. Every guest plays on their own: now and then they pick up a loose
 // card, drag it along a gentle arc to another loose card's place and the two swap, marked the way the app marks
 // another player's card (an outline in their colour and their initial). A move never puts a card in its place and
-// never joins a pair, so the board stays mid-game forever. Invite seats a new player (the next free seat's colour,
-// a calm name, an avatar); Remove takes one out at once (a card in their hand glides back). Reduced motion: no
-// moves, each guest's colour mark on one card.
+// never joins a pair, so the board stays mid-game forever; moves in flight keep clear of each other's cells and
+// their neighbours, so every move that starts also lands. The landed card stays above the one it pushes out.
+// Invite seats a new player (the next free seat's colour, a calm name, an avatar in about that colour); Remove
+// takes one out at once (a card in their hand glides back from where it is). Reduced motion: no moves, each
+// guest's colour mark on one card.
 
 const MAX_PLAYERS = 5
 const NAMES = ["Ava", "Leo", "Noah", "Zoe", "Ivy", "Kai", "Nina", "Luca", "Ella", "Theo", "Finn", "Rosa"]
@@ -33,7 +35,8 @@ const START_ORDER = arrange(N, COLS, { ...Object.fromEntries(boardInfo.locked.ma
 // A moved card keeps its player's mark this long. The app keeps it 2.5 s; the page's players move faster than
 // people do, so a shorter mark keeps five of them readable.
 const MARK_MS = 1200
-const SETTLE_MS = 380 // the displaced card's glide to the dragged card's old place
+// The displaced card's glide to the dragged card's old place: a little longer the farther it goes.
+const settleMs = (cells: number) => Math.min(640, 300 + 70 * cells)
 
 type Guest = {
   id: number
@@ -55,15 +58,27 @@ type Engine = {
   busyCells: Set<number>
   /** Displaced cards gliding to the dragged card's old place (drawn above their neighbours). */
   settling: Set<number>
+  /** Cards that just landed, drawn above the card they push out until it has settled. */
+  landed: Set<number>
   marks: Map<number, { guest: number; until: number }>
   timers: Map<number, number>
 }
 
 const avatarOf = (key: string) => avatars.find((a) => a.key === key) ?? avatars[0]
+// The seats' colours (--player-0 to 4 in styles.css, light theme), to keep a new guest's avatar from wearing
+// another player's colour.
+const SEAT_COLORS = ["#2f4fbf", "#c2410c", "#7e22ce", "#0f766e", "#be185d"]
+const rgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16))
+const colorGap = (a: string, b: string) => Math.hypot(...rgb(a).map((v, i) => v - rgb(b)[i]))
 const pick = <T,>(items: T[]) => items[Math.floor(Math.random() * items.length)]
 const between = (a: number, b: number) => a + Math.random() * (b - a)
 const at = (cell: number) => [(cell % COLS) * 100, Math.floor(cell / COLS) * 100] as const
 const place = (cell: number, scale = 1) => `translate(${at(cell)[0]}%, ${at(cell)[1]}%) scale(${scale})`
+/** A cell and the cells beside, above and below it. */
+const around = (cell: number) => {
+  const x = cell % COLS
+  return [cell, x > 0 ? cell - 1 : -1, x < COLS - 1 ? cell + 1 : -1, cell - COLS, cell + COLS].filter((c) => c >= 0 && c < N)
+}
 
 /** Loose single cards (not in their place, not in a group): the only cards anyone moves. */
 const movable = (order: number[]) => order.map((_, c) => c).filter((c) => order[c] !== c && !isGrouped(order, COLS, c))
@@ -164,7 +179,7 @@ export function PlayTogetherDemo() {
   const [toast, setToast] = useState<{ text: string; key: number } | null>(null)
   const [, setTick] = useState(0)
   const bump = useCallback(() => setTick((t) => t + 1), [])
-  const eng = useRef<Engine>({ order: [...START_ORDER], drags: new Map(), busyPieces: new Set(), busyCells: new Set(), settling: new Set(), marks: new Map(), timers: new Map() })
+  const eng = useRef<Engine>({ order: [...START_ORDER], drags: new Map(), busyPieces: new Set(), busyCells: new Set(), settling: new Set(), landed: new Set(), marks: new Map(), timers: new Map() })
   const pieceEls = useRef(new Map<number, HTMLElement>())
   const boardRef = useRef<HTMLDivElement>(null)
   const visible = useRef(false)
@@ -194,7 +209,7 @@ export function PlayTogetherDemo() {
   }, [])
 
   // The move engine. Its state lives in a ref (several players change it between renders); `bump` re-renders.
-  const engine = useRef<{ schedule: (id: number, delay: number) => void } | null>(null)
+  const engine = useRef<{ schedule: (id: number, delay: number) => void; glideBack: (d: Drag) => void } | null>(null)
   if (!engine.current) {
     const isHere = (id: number) => guestsRef.current.some((g) => g.id === id && !g.leaving)
 
@@ -232,31 +247,54 @@ export function PlayTogetherDemo() {
       if (isHere(d.guest)) schedule(d.guest, between(900, 2700))
     }
 
+    /**
+     * The card in a player's hand glides back to its place from wherever it is now, still lifted (its player left,
+     * or the move no longer fits). Not Animation.reverse(): a drag reversed before it has started jumps to its end.
+     */
+    const glideBack = (d: Drag) => {
+      if (d.back) return
+      d.back = true
+      const el = pieceEls.current.get(d.piece)
+      const anim = d.anim
+      if (!el || !anim) return finishBack(d)
+      const total = Number(anim.effect?.getComputedTiming().duration) || 1
+      const done = Math.min(1, Math.max(0, Number(anim.currentTime ?? 0) / total))
+      const from = getComputedStyle(el).transform
+      anim.onfinish = null
+      anim.cancel()
+      d.anim = el.animate([{ transform: from === "none" ? place(d.from) : from }, { transform: place(d.from) }], {
+        duration: 260 + 520 * done,
+        easing: "cubic-bezier(0.3, 0.7, 0.2, 1)",
+        fill: "forwards",
+      })
+      d.anim.onfinish = () => finishBack(d)
+      bump()
+    }
+
     /** The dragged card lands: the two cards swap places and both carry the player's mark for a moment. */
     const drop = (d: Drag) => {
       const e = eng.current
-      // Another player's move may have landed meanwhile: a swap that would now join a pair is taken back.
-      if (!fair(e.order, d.from, d.to)) {
-        d.back = true
-        d.anim?.reverse()
-        return
-      }
+      // Moves in flight keep clear of each other (startDrag), so this holds; if it ever does not, the card goes back.
+      if (!fair(e.order, d.from, d.to)) return glideBack(d)
       ;[e.order[d.from], e.order[d.to]] = [e.order[d.to], e.order[d.from]]
       e.drags.delete(d.guest)
       const until = performance.now() + MARK_MS
       e.marks.set(d.piece, { guest: d.guest, until })
       e.marks.set(d.other, { guest: d.guest, until })
       e.settling.add(d.other)
+      e.landed.add(d.piece)
       flushSync(bump)
       d.anim?.cancel()
       const settled = () => {
         e.settling.delete(d.other)
+        e.landed.delete(d.piece)
         release(d)
         bump()
       }
       const other = pieceEls.current.get(d.other)
       if (other) {
-        other.animate([{ transform: place(d.to) }, { transform: place(d.from) }], { duration: SETTLE_MS, easing: "cubic-bezier(0.3, 0.7, 0.2, 1)" }).onfinish = settled
+        const cells = Math.hypot(at(d.to)[0] - at(d.from)[0], at(d.to)[1] - at(d.from)[1]) / 100
+        other.animate([{ transform: place(d.to) }, { transform: place(d.from) }], { duration: settleMs(cells), easing: "cubic-bezier(0.3, 0.7, 0.2, 1)" }).onfinish = settled
       } else settled()
       window.setTimeout(bump, MARK_MS + 30)
       // The next pick waits until this swap's marks have faded, so a player never holds a new card
@@ -268,7 +306,10 @@ export function PlayTogetherDemo() {
       const e = eng.current
       const guest = guestsRef.current.find((g) => g.id === id)
       if (!guest) return false
-      const free = movable(e.order).filter((c) => !e.busyCells.has(c) && !e.busyPieces.has(e.order[c]))
+      // A move's fairness depends only on its two cells and their neighbours, so a new move keeps clear of the
+      // cells of every move in flight and of the cells beside them: then every move still fits when it lands.
+      const near = new Set([...e.busyCells].flatMap(around))
+      const free = movable(e.order).filter((c) => !near.has(c) && !e.busyPieces.has(e.order[c]))
       if (free.length < 2) return false
       const from = pick(free)
       const targets = free.filter((c) => c !== from && fair(e.order, from, c))
@@ -307,7 +348,7 @@ export function PlayTogetherDemo() {
       return true
     }
 
-    engine.current = { schedule }
+    engine.current = { schedule, glideBack }
   }
 
   // The guests start one by one, each after a short random wait; nothing moves with reduced motion.
@@ -341,7 +382,11 @@ export function PlayTogetherDemo() {
     const names = NAMES.filter((n) => n[0] !== HOST.name[0] && !live.some((g) => g.name[0] === n[0]))
     const name = pick(names.length ? names : NAMES.filter((n) => !live.some((g) => g.name === n)))
     const used = new Set([HOST.avatar, ...live.map((g) => g.avatar.key)])
-    const avatar = pick(avatars.filter((a) => !used.has(a.key)))
+    // One of the avatars nearest their own seat's colour and farthest from the others', so the colour on the
+    // board points to one player only.
+    const others = SEAT_COLORS.filter((_, s) => s !== seat)
+    const fit = (a: Avatar) => Math.min(...others.map((c) => colorGap(a.color, c))) - colorGap(a.color, SEAT_COLORS[seat])
+    const avatar = pick(avatars.filter((a) => !used.has(a.key)).sort((a, b) => fit(b) - fit(a)).slice(0, 2))
     const taken = new Set(live.map((g) => g.still))
     const id = nextId.current++
     const guest: Guest = { id, name, avatar, seat, drag: between(700, 1300), still: pick(movable(eng.current.order).filter((c) => !taken.has(c))), leaving: false }
@@ -359,10 +404,7 @@ export function PlayTogetherDemo() {
     setGuestList((gs) => gs.map((x) => (x.id === id ? { ...x, leaving: true } : x)))
     // A card in their hand glides back to its place.
     const d = e.drags.get(id)
-    if (d && !d.back) {
-      d.back = true
-      d.anim?.reverse()
-    }
+    if (d) engine.current?.glideBack(d)
     window.setTimeout(() => setGuestList((gs) => gs.filter((x) => x.id !== id)), still ? 0 : 320)
     say(`${g.name} was removed`)
   }
@@ -380,13 +422,16 @@ export function PlayTogetherDemo() {
       if (g && m.until > now) markOf.set(piece, g)
     })
   }
-  const dragging = new Set([...e.drags.values()].filter((d) => !d.back).map((d) => d.piece))
+  // A card going back stays lifted until it is down.
+  const dragging = new Set([...e.drags.values()].map((d) => d.piece))
   const cellOf = new Map(e.order.map((p, c) => [p, c]))
 
   const free = MAX_PLAYERS - players
   return (
     <div className="grid items-center gap-12 md:grid-cols-2">
-      <div className="flex flex-col gap-4">
+      {/* On wide screens the card keeps its bottom edge where it is and grows upward, as the app's sheet does, so
+          Invite stays under the pointer and nothing beside it moves. */}
+      <div className="flex flex-col gap-4 md:min-h-[33rem] md:justify-end">
         <div className="rounded-3xl bg-card p-4 shadow-[0_18px_40px_-24px_rgb(20_22_50/0.35)] ring-1 ring-foreground/10 sm:p-5">
           <div className="flex flex-col gap-0.5 px-1 pb-3">
             <h3 className="font-heading text-xl font-bold">Players</h3>
@@ -441,6 +486,7 @@ export function PlayTogetherDemo() {
                 data-locked={c === p || undefined}
                 data-drag={dragging.has(p) || undefined}
                 data-settle={e.settling.has(p) || undefined}
+                data-land={e.landed.has(p) || undefined}
                 style={{ width: `${100 / COLS}%`, height: `${100 / ROWS}%`, transform: place(c) }}
               >
                 <span className="toy-lift">

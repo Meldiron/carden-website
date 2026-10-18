@@ -766,6 +766,10 @@
   .coop-piece[data-settle] {
     z-index: 6;
   }
+  /* The card that just landed stays above the one it pushes out. */
+  .coop-piece[data-land] {
+    z-index: 8;
+  }
   /* Locked cards read as one piece of the picture: their tiles overlap by half a pixel, so no seam shows. */
   .coop-piece[data-locked] .toy-img {
     inset: -0.5px;
